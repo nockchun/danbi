@@ -4,11 +4,11 @@ from .IPlugin import IPlugin
 class PluginManager:
     def __init__(self, base_package: str):
         self._base_package = base_package
-        self._plugins = []
+        self._plugins = {}
         self._discover_plugins(base_package)
     
     def getPlugins(self) -> list:
-        return self._plugins
+        return list(self._plugins.keys())
     
     def _discover_plugins(self, package: str) -> None:
         imported_package = __import__(package, fromlist=['blah'])
@@ -18,8 +18,9 @@ class PluginManager:
                 clazz_members = inspect.getmembers(plugin_module, inspect.isclass)
                 for (_, clazz) in clazz_members:
                     if issubclass(clazz, IPlugin) & (clazz is not IPlugin):
-                        instance = clazz(f'{clazz.__module__}.{clazz.__name__}')
-                        self._plugins.append(instance)
+                        full_name = f'{clazz.__module__}.{clazz.__name__}'
+                        instance = clazz(full_name)
+                        self._plugins[full_name] = [instance, False]
         
         all_current_paths = []
         if isinstance(imported_package.__path__, str):
@@ -35,13 +36,26 @@ class PluginManager:
                 for child_pkg in child_pkgs:
                     self._discover_plugins(package + '.' + child_pkg)
     
-    def plug(self, injection_map: dict, target: str = None) -> None:
-        for plugin in self._plugins:
-            if (target is None):
-                plugin.plug(*[injection_map[x] for x in plugin.getInjectionKeys()])
-            elif plugin.getName == target:
-                plugin.plug(*[injection_map[x] for x in plugin.getInjectionKeys()])
+    def plug(self, target: str = None) -> None:
+        if target is None:
+            for plugin in self._plugins.values():
+                if not plugin[1]:
+                    plugin[0].plug()
+                    plugin[1] = True
+        else:
+            plugin = self._plugins[target]
+            if not plugin[1]:
+                plugin[0].plug()
+                plugin[1] = True
     
-    def unplug(self) -> None:
-        for plugin in self._plugins:
-            plugin.unplug()
+    def unplug(self, target: str = None) -> None:
+        if target is None:
+            for plugin in self._plugins.values():
+                if plugin[1]:
+                    plugin[0].unplug()
+                    plugin[1] = False
+        else:
+            plugin = self._plugins[target]
+            if plugin[1]:
+                plugin[0].unplug()
+                plugin[1] = False

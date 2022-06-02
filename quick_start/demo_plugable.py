@@ -16,4 +16,7 @@ plugin_manager.plug(injection_map)
 print()
 
 print("----------------------------- Stop Plugin ------------------------------")
+plugin_manager.unplug("plugins.TinyService.TinyService")
+plugin_manager.plug(injection_map, "plugins.TinyService.TinyService")
+plugin_manager.plug(injection_map, "plugins.sub_plugin.SubService.SubService")
 plugin_manager.unplug()

@@ -11,15 +11,11 @@ class IPlugin(abc.ABC):
         return self._name
     
     @abc.abstractmethod
-    def getInjectionKeys(self):
-        ...
-
-    @abc.abstractmethod
-    def plug(self, *args) -> None:
+    def plug(self) -> bool:
         ...
     
     @abc.abstractmethod
-    def unplug(self) -> None:
+    def unplug(self) -> bool:
         ...
     
     def __repr__(self):
