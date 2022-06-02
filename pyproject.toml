@@ -1,0 +1,32 @@
+[tool.poetry]
+name = "danbi"
+version = "0.1.0"
+description = "python utility library"
+authors = ["nockchun <nockchun@gmail.com>"]
+license = "Apache-2.0"
+readme = "README.rst"
+homepage = "https://github.com/nockchun/rsnet-py"
+repository = "https://github.com/nockchun/rspy-py"
+keywords = ["mybatis like", "sql mapper", "python utils"]
+classifiers = [
+    "Environment :: Console",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.7",
+    "Topic :: Software Development :: Documentation",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Software Development :: Quality Assurance",
+]
+include = [
+    "LICENSE",
+]
+
+[tool.poetry.dependencies]
+python = "^3.7"
+
+[tool.poetry.dev-dependencies]
+pytest = "^5.2"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
