@@ -1,3 +1,4 @@
+from typing import Any, Union
 import yaml
 import os, glob
 
@@ -50,7 +51,7 @@ class YAMLConfig:
         
         return signatures
     
-    def getConfig(self, namespace: str, tag: str) -> dict:
+    def getConfig(self, namespace: str, tag: Any) -> dict:
         """Search for settings of config file with the same "name:tag".
         Args:
             namespace (str): namespace of configs
@@ -76,7 +77,7 @@ class YAMLConfig:
         else:
             return result
     
-    def setCurrent(self, namespace: str, tag: str):
+    def setCurrent(self, namespace: str, tag: Any):
         """Set the signature ("namespace:tag") to use. 
         Args:
             namespace (str): namespace of config.
@@ -121,7 +122,7 @@ class YAMLConfig:
             result.append(eval(self.__genCmdString(dot_query)))
         return result
     
-    def setValue(self, dot_query: str, value: str) -> None:
+    def setValue(self, dot_query: str, value: Union[tuple, dict, list]) -> None:
         """Set the value at the location of the variable using dot notation.
         Args:
             dot_query (str): variable position using dot notation.
