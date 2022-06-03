@@ -14,8 +14,8 @@ class Jinja2Mapper(IMapper):
         template.setCurrent(namespace, tag)
         
         self._mapper = {}
-        for config in template.getCurrent()["configs"]:
-            for mapper in config["config"]["mapper"]:
+        for config in template.getCurrent():
+            for mapper in config["mapper"]:
                 self._mapper[mapper["name"]] = mapper["temp"]
     
     def get(self, name: str, values=None) -> str:
