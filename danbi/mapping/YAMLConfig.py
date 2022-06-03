@@ -61,6 +61,12 @@ class YAMLConfig:
         Returns:
             dict: all config information.
         """
+        result = []
+        for config in self._findConfig(namespace, tag)["configs"]:
+            result.append(config["config"])
+        return result
+    
+    def _findConfig(self, namespace: str, tag: Any) -> dict:
         result = {"configs": []}
         for config_meta in self._configs:
             for config in config_meta["configs"]:
@@ -83,7 +89,7 @@ class YAMLConfig:
             namespace (str): namespace of config.
             tag (str): tag or version of config.
         """
-        self._current = self.getConfig(namespace, tag)
+        self._current = self._findConfig(namespace, tag)
 
         return self
     
@@ -92,7 +98,11 @@ class YAMLConfig:
         Returns:
             dict: all configuration variables.
         """
-        return self._current
+        result = []
+        for config in self._current["configs"]:
+            result.append(config["config"])
+        
+        return result
     
     def __genCmdString(self, dot_query: str) -> str:
         command = "config['config']"
