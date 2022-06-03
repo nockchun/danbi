@@ -21,3 +21,5 @@ print(conf.getValue("config.hosts[0].ip"), "\n")
 
 print("------------------------------- persist --------------------------------")
 conf.persist()
+
+print(di.__version__)
