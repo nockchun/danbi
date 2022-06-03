@@ -1,4 +1,5 @@
 import abc
+from typing import Any
 
 class IMapper(abc.ABC):
     @abc.abstractclassmethod
@@ -6,6 +7,6 @@ class IMapper(abc.ABC):
         ...
     
     @abc.abstractclassmethod
-    def get(self, name: str, values = None) -> str:
+    def get(self, name: str, values: Any = None) -> str:
         ...
 

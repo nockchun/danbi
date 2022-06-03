@@ -1,0 +1,13 @@
+config:
+  hosts:
+  - ip: 1.1.1.1
+    port: 1024
+  - ip: 192.168.0.2
+    port: 2048
+    service:
+    - name: apache
+      state: run
+    - name: tomcat
+      state: stop
+namespace: common-config-test
+tag: 1.0
