@@ -28,6 +28,7 @@ class UvicornServer(plugable.IPlugin):
     settings = Settings()
 
     def plug(self, **kwargs) -> bool:
+        assert "app" in kwargs, f"set the fastapi app when create the PluginManager.\n{' '*16}ex) PluginManager(app=<your fastapi app instance>)"
 
         if (UvicornServer.settings.OPTION_ORIGIN):
              self._setOrigins(kwargs["app"])
