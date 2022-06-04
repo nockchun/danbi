@@ -1,0 +1,3 @@
+from .info import (
+    infoInstalledPackage
+)

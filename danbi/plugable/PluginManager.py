@@ -1,12 +1,24 @@
 import os, pkgutil, inspect
 from .IPlugin import IPlugin
+from danbi import utils
 
 class PluginManager:
-    def __init__(self, base_package: str):
-        self._base_package = base_package
+    def __init__(self, **kwargs):
         self._plugins = {}
-        self._discover_plugins(base_package)
+        self._kwargs = kwargs
     
+    def addPackagePath(self, path: str):
+        self._discover_plugins(path)
+
+        return self
+    
+    def addPackage(self, package_regex_name: str):
+        packages_info = utils.infoInstalledPackage(package_regex_name)
+        for package in packages_info:
+            self._discover_plugins(package[0])
+        
+        return self
+
     def getPlugins(self) -> list:
         return list(self._plugins.keys())
     
@@ -19,8 +31,7 @@ class PluginManager:
                 for (_, clazz) in clazz_members:
                     if issubclass(clazz, IPlugin) & (clazz is not IPlugin):
                         full_name = f'{clazz.__module__}.{clazz.__name__}'
-                        instance = clazz(full_name)
-                        self._plugins[full_name] = [instance, False]
+                        self._plugins[full_name] = [None, False, clazz]
         
         all_current_paths = []
         if isinstance(imported_package.__path__, str):
@@ -38,24 +49,30 @@ class PluginManager:
     
     def plug(self, target: str = None) -> None:
         if target is None:
-            for plugin in self._plugins.values():
+            for fullname, plugin in self._plugins.items():
                 if not plugin[1]:
-                    plugin[0].plug()
+                    plugin[0] = plugin[2](fullname)
+                    plugin[0].plug(**self._kwargs)
                     plugin[1] = True
         else:
             plugin = self._plugins[target]
             if not plugin[1]:
-                plugin[0].plug()
+                plugin[0] = plugin[2](target)
+                plugin[0].plug(**self._kwargs)
                 plugin[1] = True
     
     def unplug(self, target: str = None) -> None:
         if target is None:
             for plugin in self._plugins.values():
                 if plugin[1]:
-                    plugin[0].unplug()
+                    plugin[0].unplug(**self._kwargs)
+                    del plugin[0]
+                    plugin[0] = None
                     plugin[1] = False
         else:
             plugin = self._plugins[target]
             if plugin[1]:
-                plugin[0].unplug()
+                plugin[0].unplug(**self._kwargs)
+                del plugin[0]
+                plugin[0] = None
                 plugin[1] = False

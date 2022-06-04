@@ -11,11 +11,11 @@ class IPlugin(abc.ABC):
         return self._name
     
     @abc.abstractmethod
-    def plug(self) -> bool:
+    def plug(self, **kwargs) -> bool:
         ...
     
     @abc.abstractmethod
-    def unplug(self) -> bool:
+    def unplug(self, **kwargs) -> bool:
         ...
     
     def __repr__(self):
