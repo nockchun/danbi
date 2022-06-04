@@ -1,8 +1,4 @@
 # danbi
-python utility library
-
-
-# danbi
 [![license]](/LICENSE)
 [![pypi]](https://pypi.org/project/danbi/)
 [![pyversions]](http://pypi.python.org/pypi/danbi)
