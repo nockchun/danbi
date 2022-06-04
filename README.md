@@ -11,6 +11,6 @@ danbi is python utility library.
 ## Installation
 
 ```python
-pip3 install danbi
+pip install danbi
 ```
 
