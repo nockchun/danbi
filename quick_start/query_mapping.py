@@ -1,7 +1,7 @@
 import danbi as di
 
 # Create db-work environments with query-mapper.
-psql = di.DBManagerPostgresql(
+psql = di.ConnMngPsql(
     user="rsnet",
     password="rsnet",
     host="postgresql-hl.postgresql",
@@ -9,7 +9,7 @@ psql = di.DBManagerPostgresql(
     database="rsnet"
 ).connect(minconn=1, maxconn=2)
 mapper = di.Jinja2Mapper(["res/sqlmap.yaml"], "sql-test", 1.0)
-db = di.DBPostgresql(psql, mapper)
+db = di.DBPsql(psql, mapper)
 
 # Create Table
 db.execute("book.create")

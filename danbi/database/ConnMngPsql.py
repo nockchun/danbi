@@ -1,8 +1,8 @@
 from psycopg2 import pool, extensions
-from .IDBManager import IDBManager
+from .IConnectionManager import IConnectionManager
 
-class DBManagerPostgresql(IDBManager):
-    def connect(self, **kwargs) -> IDBManager:
+class ConnMngPsql(IConnectionManager):
+    def connect(self, **kwargs) -> IConnectionManager:
         try:
             self.close()
             self._kwargs.update(kwargs)

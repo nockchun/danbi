@@ -12,11 +12,13 @@ mapper:
         title VARCHAR(128),
         date_published DATE
     );
+
 - name: book.insert
   temp: |
     INSERT
       INTO book (id, author, isbn, title, date_published)
     VALUES (%s,%s,%s,%s,%s)
+
 ---
 namespace: sql-test
 tag: 1.0
@@ -29,6 +31,7 @@ mapper:
      {% if values["id"] %}
      WHERE id = %(id)s
      {% endif %}
+
 - name: book.delete
   temp: |
     DELETE

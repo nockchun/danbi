@@ -1,10 +1,10 @@
 import abc
 import pandas as pd
-from .IDBManager import IDBManager
+from .IConnectionManager import IConnectionManager
 from ..mapping.IMapper import IMapper
 
 class IDB(abc.ABC):
-    def __new__(self, manager: IDBManager, mapper: IMapper):
+    def __new__(self, manager: IConnectionManager, mapper: IMapper):
         if not hasattr(self, 'instance'):
             self.instance = super(IDB, self).__new__(self)
             self._manager = manager
@@ -13,6 +13,9 @@ class IDB(abc.ABC):
     
     def getManager(self):
         return self._manager
+    
+    def getMapper(self):
+        return self._mapper
     
     @abc.abstractmethod
     def query(self, mapper_name, values=None) -> list:

@@ -1,4 +1,4 @@
-from .IDBManager import IDBManager
-from .DBManagerPostgresql import DBManagerPostgresql
+from .IConnectionManager import IConnectionManager
+from .ConnMngPsql import ConnMngPsql
 from .IDB import IDB
-from .DBPostgresql import DBPostgresql
+from .DBPsql import DBPsql

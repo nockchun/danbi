@@ -13,7 +13,6 @@ class YAMLConfig:
         assert isinstance(conf_paths, list), "param 'conf_paths' have to a list"
         self._configs = []
         self._current = []
-        # self._current_meta = []
         
         first_name, first_tag = None, None
         for idx, conf_file in enumerate(self._parsePaths(conf_paths)):

@@ -1,7 +1,7 @@
 import pandas as pd
 from .IDB import IDB
 
-class DBPostgresql(IDB):
+class DBPsql(IDB):
     def query(self, mapper_name, values=None) -> list:
         raw_sql = self._mapper.get(mapper_name, values)
         
