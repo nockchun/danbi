@@ -1,9 +1,6 @@
-import fastapi
-
-from danbi.plugins.fastapi.TortoiseORM import TortoiseORM
 from .database import *
 from .mapping import *
 from .plugable import *
-from .plugins.fastapi.TortoiseORM import TortoiseORM
+from .utils import *
 
-__version__ = '0.1.10'
+__version__ = '0.1.11'
