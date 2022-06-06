@@ -18,5 +18,8 @@ class Jinja2Mapper(IMapper):
             for mapper in config["mapper"]:
                 self._mapper[mapper["name"]] = mapper["temp"]
     
-    def get(self, name: str, values=None) -> str:
-        return Template(self._mapper[name]).render(values=values)
+    def get(self, name: str, values=None, verbose=False) -> str:
+        result = Template(self._mapper[name]).render(values=values)
+        if verbose:
+            print(result)
+        return result

@@ -1,12 +1,12 @@
 [tool.poetry]
 name = "danbi"
-version = "0.1.11"
+version = "0.1.12"
 description = "python utility library"
 authors = ["nockchun <nockchun@gmail.com>"]
 license = "Apache-2.0"
 readme = "README.md"
-homepage = "https://github.com/nockchun/rsnet-py"
-repository = "https://github.com/nockchun/rspy-py"
+homepage = "https://github.com/nockchun/danbi"
+repository = "https://github.com/nockchun/danbi"
 keywords = ["mybatis like", "sql mapper", "python utils"]
 classifiers = [
     "Environment :: Console",
