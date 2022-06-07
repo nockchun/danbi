@@ -1,11 +1,11 @@
 from typing import Any, Union
 import yaml
-import os, glob
+import os, pkgutil, glob
 
 class YAMLConfig:
     """ Manage various config file with yaml file.
     """
-    def __init__(self, conf_paths: list = []):
+    def __init__(self, conf_paths: list[str] = [], base_package: str = None):
         """
         Args:
             conf_paths (list, optional): file or directory path for yaml config file. Defaults to [].
@@ -14,20 +14,34 @@ class YAMLConfig:
         self._configs = []
         self._current = []
         
-        first_name, first_tag = None, None
-        for idx, conf_file in enumerate(self._parsePaths(conf_paths)):
-            config = {}
-            config["path"] = conf_file
-            config["configs"] = []
-            with open(conf_file, "r") as stream:
-                configs_raw = yaml.safe_load_all(stream)
-                for data in configs_raw:
-                    config["configs"].append(data)
-                    first_name = data["namespace"]
-                    first_tag = data["tag"]
-            self._configs.append(config)
-        self.setCurrent(first_name, first_tag)
-    
+        self._first_name, self._first_tag = None, None
+        if base_package is None:
+            for conf_file in self._parsePaths(conf_paths):
+                config = {}
+                config["path"] = conf_file
+                config["configs"] = []
+                with open(conf_file, "r") as data:
+                    self._add_config(config, data)
+        else:
+            for conf_file in conf_paths:
+                if conf_file.endswith(".yaml") or conf_file.endswith(".yml"):
+                    config = {}
+                    config["path"] = base_package + conf_file
+                    config["configs"] = []
+                    data = pkgutil.get_data(base_package, conf_file)
+                    self._add_config(config, data)
+
+        self.setCurrent(self._first_name, self._first_tag)
+
+    def _add_config(self, config, data):
+        configs_raw = yaml.safe_load_all(data)
+        for data in configs_raw:
+            config["configs"].append(data)
+            if self._first_name is None:
+                self._first_name = data["namespace"]
+                self._first_tag = data["tag"]
+        self._configs.append(config)
+
     def _parsePaths(self, conf_paths: list = []) -> list:
         all_paths = []
         for conf_path in conf_paths:
