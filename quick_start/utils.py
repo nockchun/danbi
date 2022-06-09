@@ -1,3 +1,4 @@
-import danbi as di
+from danbi import utils as diu
 
-print(di.utils.infoInstalledPackage("danbi"))
+print(diu.infoInstalledPackage("danbi.*"))
+print(diu.getDaysBetween("2000-01-01", "2010-12-31", [2, 7]))
