@@ -32,7 +32,7 @@ print("insert amount : ", db.executeMany("book.insert", values), "\n")
 print("----------------------------- Select Data ------------------------------")
 print(db.queryRaw("SELECT version();"), "\n")
 print(db.query("book.select", {"id": 3}), "\n")
-print(db.queryPandas("book.select"), "\n")
+print(db.queryPandas("book.select", dtype={"author": str}), "\n")
 
 # Delete Data
 print("----------------------------- Delete Data ------------------------------")

@@ -1,4 +1,5 @@
 import abc
+from typing import Union
 import pandas as pd
 from .IConnectionManager import IConnectionManager
 from ..mapping.IMapper import IMapper
@@ -11,40 +12,122 @@ class IDB(abc.ABC):
             self._mapper = mapper
         return self.instance
     
-    def getManager(self):
+    def getManager(self) -> IConnectionManager:
+        """
+        Returns:
+            IConnectionManager: danbi's database connection control manager.
+        """
         return self._manager
     
-    def getMapper(self):
+    def getMapper(self) -> IMapper:
+        """
+        Returns:
+            IMapper: danbi's Jinja2Mapper control manager.
+        """
         return self._mapper
     
     @abc.abstractmethod
-    def query(self, mapper_name, values=None) -> list:
+    def query(self, mapper_name: str, values: Union[dict, tuple] = None) -> list:
+        """query with Jinja2Mapper's query key.
+
+        Args:
+            mapper_name (str): key value of yaml file of Jinja2Mapper.
+            values (Union[dict, tuple], optional): parameter values for sql and mapper. Defaults to None.
+
+        Returns:
+            list: result of query
+        """
         ...
     
     @abc.abstractmethod
-    def queryRaw(self, raw_sql, values=None) -> list:
+    def queryRaw(self, raw_sql: str, values: tuple = None) -> list:
+        """query with raw sql.
+
+        Args:
+            raw_sql (str): query sql from raw string.
+            values (tuple, optional): parameter values for sql. Defaults to None.
+
+        Returns:
+            list: result of query
+        """
         ...
     
     @abc.abstractmethod
-    def queryPandas(self, mapper_name, values=None, dtype: dict = None) -> pd.DataFrame:
+    def queryPandas(self, mapper_name: str, values: Union[dict, tuple] = None, dtype: dict = None) -> pd.DataFrame:
+        """query with Jinja2Mapper's query key. and the result type change to pandas dataframe.
+
+        Args:
+            mapper_name (str): key value of yaml file of Jinja2Mapper.
+            values (Union[dict, tuple], optional): parameter values for sql and mapper. Defaults to None.
+            dtype (dict, optional): pandas column's data type. The name of the column depends on the contents of the select clause of the query.  Defaults to None.
+
+        Returns:
+            pd.DataFrame: pandas dataframe.
+        """
         ...
     
     @abc.abstractmethod
-    def queryPandasRaw(self, mapper_name, values=None, dtype: dict = None) -> pd.DataFrame:
+    def queryPandasRaw(self, raw_sql: str, values: Union[dict, tuple] = None, dtype: dict = None) -> pd.DataFrame:
+        """query with raw sql query by raw_sql. and the result type change to pandas dataframe.
+
+        Args:
+            raw_sql (str): query sql from raw string.
+            values (Union[dict, tuple], optional): parameter values for sql and mapper. Defaults to None.
+            dtype (dict, optional): pandas column's data type. The name of the column depends on the contents of the select clause of the query. Defaults to None.
+
+        Returns:
+            pd.DataFrame: pandas dataframe.
+        """
         ...
     
     @abc.abstractmethod
-    def execute(self, mapper_name, values=None) -> int:
+    def execute(self, mapper_name: str, values: Union[dict, tuple] = None) -> int:
+        """all sqls without a result table.
+
+        Args:
+            mapper_name (str): key value of yaml file of Jinja2Mapper.
+            values (Union[dict, tuple], optional): parameter values for sql and mapper. Defaults to None.
+
+        Returns:
+            int: The number of results executed.
+        """
         ...
     
     @abc.abstractmethod
-    def executeRaw(self, raw_sql, values=None) -> int:
+    def executeRaw(self, raw_sql: str, values: Union[dict, tuple] = None) -> int:
+        """all sqls without a result table with raw sql string.
+
+        Args:
+            raw_sql (str): query sql from raw string.
+            values (Union[dict, tuple], optional): parameter values for sql and mapper. Defaults to None.
+
+        Returns:
+            int: The number of results executed.
+        """
         ...
     
     @abc.abstractmethod
-    def executeMany(self, mapper_name, values=None) -> int:
+    def executeMany(self, mapper_name: str, values: Union[dict, tuple] = None) -> int:
+        """When inserting a lot of data in batches with Jinja2Mapper's query key.
+
+        Args:
+            mapper_name (str): key value of yaml file of Jinja2Mapper.
+            values (Union[dict, tuple], optional): parameter values for sql and mapper. Defaults to None.
+
+        Returns:
+            int: The number of results executed.
+        """
         ...
     
     @abc.abstractmethod
-    def executeManyRaw(self, raw_sql, values=None) -> int:
+    def executeManyRaw(self, raw_sql: str, values: Union[dict, tuple] = None) -> int:
+        """hen inserting a lot of data in batches with raw sql string.
+
+        Args:
+            raw_sql (str): query sql from raw string.
+            values (Union[dict, tuple], optional): parameter values for sql and mapper. Defaults to None.
+
+        Returns:
+            int: The number of results executed.
+        """
         ...
