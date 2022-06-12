@@ -42,8 +42,10 @@ class DBPsql(IDB):
             
             cursor.close()
             self._manager.releaseConnection(conn)
+
+            df = pd.DataFrame(records, columns=columns)
             
-            return pd.DataFrame(records, columns=columns, dtype=dtype)
+            return df if dtype is None else df.astype(dict)
         except Exception:
             if cursor is not None:
                 cursor.close()
