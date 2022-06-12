@@ -1,15 +1,16 @@
-import danbi as di
+from danbi import Jinja2Mapper
+from danbi.database import ConnMngPsql, DBPsql
 
 # Create db-work environments with query-mapper.
-psql = di.ConnMngPsql(
+psql = ConnMngPsql(
     user="rsnet",
     password="rsnet",
     host="postgresql-hl.postgresql",
     port="5432",
     database="rsnet"
 ).connect(minconn=1, maxconn=2)
-mapper = di.Jinja2Mapper(["res/sqlmap.yaml"], "sql-test", 1.0)
-db = di.DBPsql(psql, mapper)
+mapper = Jinja2Mapper(["res/sqlmap.yaml"], "sql-test", 1.0)
+db = DBPsql(psql, mapper)
 
 # Create Table
 db.execute("book.create")

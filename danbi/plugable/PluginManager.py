@@ -57,22 +57,21 @@ class PluginManager:
         else:
             plugin = self._plugins[target]
             if not plugin[1]:
+                print(plugin)
                 plugin[0] = plugin[2](target)
                 plugin[0].plug(**self._kwargs)
                 plugin[1] = True
     
     def unplug(self, target: str = None) -> None:
         if target is None:
-            for plugin in self._plugins.values():
+            for key, plugin in self._plugins.items():
                 if plugin[1]:
                     plugin[0].unplug(**self._kwargs)
                     del plugin[0]
-                    plugin[0] = None
-                    plugin[1] = False
+                    self._plugins[key] = [None, False, plugin[1]]
         else:
             plugin = self._plugins[target]
             if plugin[1]:
                 plugin[0].unplug(**self._kwargs)
                 del plugin[0]
-                plugin[0] = None
-                plugin[1] = False
+                self._plugins[target] = [None, False, plugin[1]]

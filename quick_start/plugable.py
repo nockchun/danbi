@@ -2,7 +2,7 @@ import danbi as di
 
 # Create Plugin Manager
 print("---------------------------- Create Manager ----------------------------")
-plugin_manager = di.PluginManager("plugins")
+plugin_manager = di.PluginManager().addPackagePath("plugins")
 print(plugin_manager.getPlugins(), "\n")
 
 print("----------------------------- Start Plugin -----------------------------")
