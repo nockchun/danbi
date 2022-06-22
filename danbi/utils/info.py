@@ -15,7 +15,7 @@ def infoInstalledPackage(name: str = None, version: str = None, license: str = N
 
     Returns:
         _type_: list of tuple. like '[(name, version, license)]'
-    """    
+    """
     regex_name = re.compile(name, re.I) if name else None
     regex_version = re.compile(version, re.I) if version else None
     regex_license = re.compile(license, re.I) if license else None

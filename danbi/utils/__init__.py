@@ -6,3 +6,4 @@ from .day_time import (
     getDaysBetween,
     getDayPeriod
 )
+from .jupyter import AsClassMethod
