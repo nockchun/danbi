@@ -19,6 +19,12 @@ mapper:
       INTO book (id, author, isbn, title, date_published)
     VALUES (%s,%s,%s,%s,%s)
 
+- name: book.insert.async
+  temp: |
+    INSERT
+      INTO book (id, author, isbn, title, date_published)
+    VALUES ($1,$2,$3,$4,$5)
+
 ---
 namespace: sql-test
 tag: 1.0
@@ -37,3 +43,9 @@ mapper:
     DELETE
       FROM book
      WHERE id > %s
+
+- name: book.delete.async
+  temp: |
+    DELETE
+      FROM book
+     WHERE id > $1

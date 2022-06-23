@@ -57,7 +57,6 @@ class PluginManager:
         else:
             plugin = self._plugins[target]
             if not plugin[1]:
-                print(plugin)
                 plugin[0] = plugin[2](target)
                 plugin[0].plug(**self._kwargs)
                 plugin[1] = True
