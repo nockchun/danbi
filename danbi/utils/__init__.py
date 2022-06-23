@@ -6,4 +6,9 @@ from .day_time import (
     getDaysBetween,
     getDayPeriod
 )
-from .jupyter import AsClassMethod
+from .jupyter import (
+    AsClassMethod
+)
+from .factory import (
+    usePgDBMapper, usePgDBMapperAsync
+)

@@ -30,6 +30,10 @@ namespace: sql-test
 tag: 1.0
 
 mapper:
+- name: db.version
+  temp: |
+    SELECT version();
+
 - name: book.select
   temp: |
     SELECT *
