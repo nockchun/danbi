@@ -1,5 +1,6 @@
 from .info import (
-    infoInstalledPackage
+    infoInstalledPackage,
+    infoSubmodules
 )
 from .day_time import (
     MO, TU, WE, TH, FR, SA, SU,

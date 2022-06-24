@@ -1,4 +1,5 @@
 import sys, re
+import pkgutil
 
 if sys.version_info >= (3, 8):
     from importlib import metadata as importlib_metadata
@@ -34,4 +35,22 @@ def infoInstalledPackage(name: str = None, version: str = None, license: str = N
         
         results.append((name, version, license))
     
+    return results
+
+def infoSubmodules(base: str = None, package: bool = True, include_path: bool = False) -> list:
+    """Find all sub-module name or sub-package name.
+
+    Args:
+        base (str, optional): base name of package. Defaults to None.
+        package (bool, optional): true to find package name, false to find file name. Defaults to True.
+        include_path (bool, optional): true if you want to append the path name to the result.. Defaults to False.
+
+    Returns:
+        list: list of sub-module or sub-package name
+    """
+    pkg_base = __import__(base, formlist=["blah"])
+    results = []
+    for loader, module_name, is_pkg in pkgutil.walk_packages(pkg_base.__path__, pkg_base.__name__ + "."):
+        if is_pkg is package:
+            results.append([loader.path, module_name] if include_path else module_name)
     return results
