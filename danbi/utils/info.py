@@ -48,7 +48,7 @@ def infoSubmodules(base: str = None, package: bool = True, include_path: bool = 
     Returns:
         list: list of sub-module or sub-package name
     """
-    pkg_base = __import__(base, formlist=["blah"])
+    pkg_base = __import__(base, fromlist=["blah"])
     results = []
     for loader, module_name, is_pkg in pkgutil.walk_packages(pkg_base.__path__, pkg_base.__name__ + "."):
         if is_pkg is package:
