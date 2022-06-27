@@ -3,15 +3,21 @@ from .YAMLConfig import YAMLConfig
 from .IMapper import IMapper
 
 class Jinja2Mapper(IMapper):
-    def __init__(self, conf_paths: list, namespace: str = None, tag = None, base_package: str = None):
+    def __init__(self, conf_paths: list = None, namespace: str = None, tag = None, base_package: str = None):
         self._conf_paths = conf_paths
         self._mapper = {}
         self._base_package = base_package
         if (namespace is not None) and (tag is not None):
             self.setNamespaceTag(namespace, tag)
-            
-    def setNamespaceTag(self, namespace: str, tag: str) -> None:
-        template = YAMLConfig(self._conf_paths, self._base_package)
+    
+    def setConfigPaths(self, conf_paths: list = None):
+        self._conf_paths = conf_paths
+
+        return self
+
+    def setNamespaceTag(self, namespace: str, tag: str, base_package: str = None) -> None:
+        self._base_package = base_package
+        template = YAMLConfig(self._conf_paths, base_package)
         template.setCurrent(namespace, tag)
         
         self._mapper = {}

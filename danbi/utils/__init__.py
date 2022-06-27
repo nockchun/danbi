@@ -10,6 +10,3 @@ from .day_time import (
 from .jupyter import (
     AsClassMethod
 )
-from .factory import (
-    usePgDBMapper, usePgDBMapperAsync
-)

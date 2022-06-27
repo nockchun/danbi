@@ -92,7 +92,7 @@ class YAMLConfig:
                     })
         
         if len(result["configs"]) == 0:
-            raise Exception(f"There is no sutable data.")
+            raise Exception(f"There is no sutable data. in [namespace: {namespace}, tag: {tag}].")
         else:
             return result
     
