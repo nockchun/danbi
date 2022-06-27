@@ -13,6 +13,10 @@ class IConnectionManager(abc.ABC):
         ...
     
     @abc.abstractclassmethod
+    def isConnect(self) -> bool:
+        ...
+
+    @abc.abstractclassmethod
     def close(self, **kwargs):
         ...
     

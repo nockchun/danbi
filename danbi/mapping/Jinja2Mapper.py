@@ -10,10 +10,13 @@ class Jinja2Mapper(IMapper):
         if (namespace is not None) and (tag is not None):
             self.setNamespaceTag(namespace, tag)
     
-    def setConfigPaths(self, conf_paths: list = None):
+    def setConfigPaths(self, conf_paths: list = None) -> IMapper:
         self._conf_paths = conf_paths
 
         return self
+    
+    def getConfigPaths(self) -> list:
+        return self._conf_paths
 
     def setNamespaceTag(self, namespace: str, tag: str, base_package: str = None) -> None:
         self._base_package = base_package

@@ -12,6 +12,9 @@ class ConnMngPsqlAsync(IConnectionManager):
         except Exception:
             raise
     
+    def isConnect(self) -> bool:
+        return self._conn_pool is not None
+    
     async def close(self, **kwargs) -> None:
         if self._conn_pool is not None:
             await self._conn_pool.close()

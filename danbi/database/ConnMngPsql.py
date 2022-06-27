@@ -12,6 +12,9 @@ class ConnMngPsql(IConnectionManager):
         except Exception:
             raise
     
+    def isConnect(self) -> bool:
+        return self._conn_pool is not None
+    
     def close(self, **kwargs) -> None:
         if self._conn_pool is not None:
             self._conn_pool.closeall()
