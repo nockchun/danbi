@@ -1,4 +1,4 @@
-from typing import Union
+from typing import Union, List, Tuple
 from datetime import datetime
 from dateutil.parser import parse
 from dateutil.rrule import rrule, MONTHLY, MO, TU, WE, TH, FR, SA, SU
@@ -6,9 +6,9 @@ from dateutil.relativedelta import relativedelta
 
 
 def getDaysBetween(start: Union[str, datetime], end: Union[str, datetime],
-                   month: list[int] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
-                   weekday: list[int] = [MO, TU, WE, TH, FR, SA, SU],
-                   weekno: list[int] = [], strftime: str = "%Y-%m-%d") -> list[Union[str, datetime]]:
+                   month: List[int] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+                   weekday: List[int] = [MO, TU, WE, TH, FR, SA, SU],
+                   weekno: List[int] = [], strftime: str = "%Y-%m-%d") -> List[Union[str, datetime]]:
     """Find a filtered date that exists within a period.
 
     Args:
@@ -38,7 +38,7 @@ def getDaysBetween(start: Union[str, datetime], end: Union[str, datetime],
 def getDayPeriod(base: Union[str, datetime] = None,
                  off_year: int = 0, off_month: int = 0, off_day: int = 0, off_week: int = 0,
                  delta_year: int = 0, delta_month: int = 0, delta_day: int = 0, delta_week: int = 0,
-                 weekday: int = None, strftime: str = "%Y-%m-%d") -> tuple[Union[str, datetime]]:
+                 weekday: int = None, strftime: str = "%Y-%m-%d") -> Tuple[Union[str, datetime]]:
     """Find the start date and end date that satisfy the condition.
 
     Args:

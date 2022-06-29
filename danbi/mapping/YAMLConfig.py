@@ -1,11 +1,11 @@
-from typing import Any, Union
+from typing import Any, Union, List
 import yaml
 import os, pkgutil, glob
 
 class YAMLConfig:
     """ Manage various config file with yaml file.
     """
-    def __init__(self, conf_paths: list[str] = [], base_package: str = None):
+    def __init__(self, conf_paths: List[str] = [], base_package: str = None):
         """
         Args:
             conf_paths (list, optional): file or directory path for yaml config file. Defaults to [].
