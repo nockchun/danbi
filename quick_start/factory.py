@@ -1,7 +1,7 @@
 import asyncio
-import danbi as bi
+from danbi import database as bid
 
-DB = bi.usePgDBMapper(
+DB = bid.usePgDBMapper(
     user="rsnet",
     password="rsnet",
     host="postgresql-hl.postgresql",
@@ -17,7 +17,7 @@ print(DB.queryRaw("select 1"))
 print(DB.query("db.version"))
 
 async def useDB():
-    DB = await bi.usePgDBMapperAsync(
+    DB = await bid.usePgDBMapperAsync(
         user="rsnet",
         password="rsnet",
         host="postgresql-hl.postgresql",

@@ -9,10 +9,10 @@ from ..mapping.IMapper import IMapper
 
 class IDB(abc.ABC):
     def __new__(self, manager: IConnectionManager, mapper: IMapper):
+        self._manager = manager
+        self._mapper = mapper
         if not hasattr(self, 'instance'):
             self.instance = super(IDB, self).__new__(self)
-            self._manager = manager
-            self._mapper = mapper
         return self.instance
 
     def _pyformat2psql(self, query: str, named_args: Dict[str, Any]) -> Tuple[str, List[Any]]:

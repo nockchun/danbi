@@ -2,9 +2,9 @@ import abc
 
 class IConnectionManager(abc.ABC):
     def __new__(self, **kwargs):
+        self._kwargs = kwargs
         if not hasattr(self, 'instance'):
             self.instance = super(IConnectionManager, self).__new__(self)
-            self._kwargs = kwargs
             self._conn_pool = None
         return self.instance
     
