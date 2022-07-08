@@ -19,7 +19,8 @@ class Jinja2Mapper(IMapper):
         return self._conf_paths
 
     def setNamespaceTag(self, namespace: str, tag: str, base_package: str = None) -> None:
-        self._base_package = base_package
+        if base_package is not None:
+            self._base_package = base_package
         template = YAMLConfig(self._conf_paths, base_package)
         template.setCurrent(namespace, tag)
         
