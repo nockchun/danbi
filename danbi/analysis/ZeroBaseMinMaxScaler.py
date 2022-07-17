@@ -8,6 +8,20 @@ class ZeroBaseMinMaxScaler():
         self._globals = []
         self._globals_fit = []
     
+    def store(self) -> dict:
+        return {
+            "range": self._range,
+            "fits": self._fits,
+            "globals": self._globals,
+            "globals_fit": self._globals_fit
+        }
+    
+    def restore(self, stored_dict: dict):
+        self._range = stored_dict["range"]
+        self._fits = stored_dict["fits"]
+        self._globals = stored_dict["globals"]
+        self._globals_fit = stored_dict["globals_fit"]
+    
     def __repr__(self):
         return str(self._fits)
     
@@ -46,7 +60,7 @@ class ZeroBaseMinMaxScaler():
                         self.fit(data[column].values, column, cleave)
         
     def transform(self, data, field="base"):
-        data = data.astype("float64")
+        # data = data.astype("float32")
         p_idx = np.where(data > 0)
         n_idx = np.where(data < 0)
         p_scale = (data[p_idx] - self._fits[field][2]) * self._fits[field][0]
@@ -63,7 +77,7 @@ class ZeroBaseMinMaxScaler():
                 data[column_new] = self.transform(data[column].values, column)
     
     def inverse(self, data, field="base"):
-        data = data.astype("float64")
+        # data = data.astype("float32")
         p_idx = np.where(data > 0)
         n_idx = np.where(data < 0)
         p_scale = data[p_idx] / self._fits[field][0] + self._fits[field][2]
