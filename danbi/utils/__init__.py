@@ -11,5 +11,5 @@ from .jupyter import (
     AsClassMethod
 )
 from .util import (
-    storePickle, restorePickleß
+    storePickle, restorePickle
 )
