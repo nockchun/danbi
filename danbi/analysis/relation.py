@@ -1,6 +1,9 @@
 import numpy as np
 
-def anaCorrelation(df, positive=0.8, negative=0.8, method="pearson", once=True):
+def anaCorrelation(df, positive=0.9, negative=0.9, method="pearson", once=True, no_rate=False, group_result=False):
+    if group_result:
+        no_rate = True
+        
     corr_pos = {}
     corr_neg = {}
     
@@ -18,8 +21,29 @@ def anaCorrelation(df, positive=0.8, negative=0.8, method="pearson", once=True):
                 row.pop(columns[idx])
                 have_corrs = row.dropna()
             if len(have_corrs) > 0:
-                result[columns[idx]] = np.array(list(have_corrs.items()))
-
+                have_corr = np.array(list(have_corrs.items()))
+                if no_rate:
+                    result[columns[idx]] = have_corr[:,0].tolist()
+                else:
+                    result[columns[idx]] = have_corr
+    
+    if group_result:
+        group_pos = []
+        group_neg = []
+        for item, result in [(corr_pos, group_pos), (corr_neg, group_neg)]:
+            for key, value in item.items():
+                value.append(key)
+                set_data = set(value)
+                is_update = False
+                for corr_set in result:
+                    if len(corr_set & set_data) > 0:
+                        corr_set.update(set_data)
+                        is_update = True
+                        break
+                if not is_update:
+                    result.append(set_data)
+        return group_pos, group_neg
+    
     return corr_pos, corr_neg
 
 def anaCorrelationFuture(df, positive=0.8, negative=0.8, targets=[], method="pearson", future=0, once=True):
@@ -28,7 +52,7 @@ def anaCorrelationFuture(df, positive=0.8, negative=0.8, targets=[], method="pea
     cols = df.columns.tolist()
     for idx, col in enumerate(cols):
         print(f"Analysis {idx+1}/{len(cols)}{' '*50}", end="\r")
-        if (len(targets) > 0) and col in targets:
+        if (len(targets) > 0) and (col not in targets):
             continue
         col_others = cols[:idx] + cols[idx+1:]
         df[col_others] = df[col_others].shift(-future)
