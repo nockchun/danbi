@@ -22,12 +22,14 @@ def anaCorrelation(df, positive=0.8, negative=0.8, method="pearson", once=True):
 
     return corr_pos, corr_neg
 
-def anaCorrelationFuture(df, positive=0.8, negative=0.8, method="pearson", future=0, once=True):
+def anaCorrelationFuture(df, positive=0.8, negative=0.8, targets=[], method="pearson", future=0, once=True):
     corr_pos = {}
     corr_neg = {}
     cols = df.columns.tolist()
     for idx, col in enumerate(cols):
-        print(f"Analysis {idx+1}/{len(cols)}")
+        print(f"Analysis {idx+1}/{len(cols)}{' '*50}", end="\r")
+        if (len(targets) > 0) and col in targets:
+            continue
         col_others = cols[:idx] + cols[idx+1:]
         df[col_others] = df[col_others].shift(-future)
         df_corr = df.corr(method=method)
@@ -44,5 +46,5 @@ def anaCorrelationFuture(df, positive=0.8, negative=0.8, method="pearson", futur
             corr_neg[col] = series_neg.index.tolist()
         
         df[col_others] = df[col_others].shift(future)
-        
+    
     return corr_pos, corr_neg
