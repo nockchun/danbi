@@ -146,6 +146,7 @@ def plotMacd(width: int, height: int, cds: ColumnDataSource, **options):
     fig.vbar(x='reg_day', top='macdh', bottom=0, width=30000000, color=COLOR[2], source=cds, view=view_dec, muted_alpha=0.1, legend_label='histogram')
     base_line = fig.line(x='reg_day', y='macd', line_width=2, color=COLOR[2], alpha=0.7, source=cds, legend_label='macd', muted_alpha=0)
     fig.line(x='reg_day', y='macds', line_width=2, color=COLOR[6], alpha=0.7, source=cds, legend_label='signal', muted_alpha=0)
+    fig.renderers.extend([Span(location=0, dimension='width', line_color="forestgreen", line_width=0.5)])
     
     _setStyle(fig)
     fig.add_tools(HoverTool(
