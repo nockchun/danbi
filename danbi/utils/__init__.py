@@ -8,7 +8,7 @@ from .day_time import (
     getDayPeriod
 )
 from .jupyter import (
-    AsClassMethod
+    asClassMethod, setWarningOff
 )
 from .util import (
     storePickle, restorePickle
