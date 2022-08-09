@@ -17,7 +17,7 @@ def convDfTypes(df: pd.DataFrame, src: List[str], dst: str) -> pd.DataFrame:
         for col in df.dtypes[df.dtypes.isin([np.dtype(ty) for ty in src])].keys()
     })
 
-def convToContinuousDfs(dfs: List[pd.DataFrame], time_column: str, freq: str) -> List[pd.DataFrame]:
+def convDfsToContinuousDfs(dfs: List[pd.DataFrame], time_column: str, freq: str) -> List[pd.DataFrame]:
     """Ensure time continuity.
 
     Args:
@@ -29,8 +29,8 @@ def convToContinuousDfs(dfs: List[pd.DataFrame], time_column: str, freq: str) ->
         List[pd.DataFrame]: pandas dataframes to ensure time continuity.
     """
     df = pd.concat(dfs).drop_duplicates().reset_index(drop=True)
-    delta = pd.Timedelta(str)
-    offsets = df[time_column].drop_duplicates().diff()
+    delta = pd.Timedelta(freq)
+    offsets = df[[time_column]].drop_duplicates().diff()
     offsets.iloc[0, 0] = delta
     points = offsets[offsets[time_column] != delta].index
     offsets = offsets.drop(time_column, axis=1)

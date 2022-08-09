@@ -4,7 +4,7 @@ from .relation import (
     anaCorrelation, anaCorrelationFuture
 )
 from .convert import (
-    convDfTypes, convContinuousTimeSeries
+    convDfTypes, convDfsToContinuousDfs
 )
 from .plot_bokeh import (
     tools, plotShowAsRows,
