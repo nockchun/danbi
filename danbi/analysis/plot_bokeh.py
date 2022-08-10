@@ -1,4 +1,4 @@
-from bokeh.models import ColumnDataSource, BooleanFilter, CDSView, Band, Range1d, LinearAxis, DataRange1d, BoxAnnotation, Span
+from bokeh.models import ColumnDataSource, BooleanFilter, CDSView, Band, Range1d, LinearAxis, BoxAnnotation, Span
 from bokeh.models import HoverTool,WheelZoomTool, PanTool, ResetTool, CrosshairTool, BoxSelectTool, BoxZoomTool, SaveTool
 from bokeh.io import show, output_notebook, curdoc
 from bokeh.plotting import figure
@@ -7,19 +7,32 @@ from bokeh.palettes import Category20, Category20b, Blues, Reds, Purples, Orange
 from bokeh.models.formatters import PrintfTickFormatter, NumeralTickFormatter, DatetimeTickFormatter
 
 import numpy as np
+import pandas as pd
+
+from .stock import genBaseIndicator
 
 tools = [PanTool(), WheelZoomTool(), ResetTool(), CrosshairTool(), BoxSelectTool(), BoxZoomTool(), SaveTool()]
 
 
-def plotShowAsRows(*args):
+def setJupyterNotebookBokehEnable():
+    from bokeh.resources import INLINE
+    output_notebook(resources=INLINE)
+
+
+def showAsRows(*args):
     chart_rows = gridplot([[chart] for chart in args])
     curdoc().add_root(chart_rows)
     show(chart_rows)
 
 
-def _figLine(fig, x, y, source, line_width, color, alpha, legend_label):
-    line = fig.line(x=x, y=y, source=source, line_width=line_width, color=color, alpha=alpha, legend_label=legend_label, muted_alpha=0.1)
-    fig.circle(x=x, y=y, source=source, radius=0)
+def _figLine(fig, x, y, source, line_width, color, alpha, legend_label, y_range_name=None):
+    if y_range_name:
+        line = fig.line(x=x, y=y, source=source, line_width=line_width, color=color, alpha=alpha, legend_label=legend_label, muted_alpha=0.1, y_range_name=y_range_name)
+        fig.circle(x=x, y=y, source=source, radius=0, y_range_name=y_range_name)
+    else:
+        line = fig.line(x=x, y=y, source=source, line_width=line_width, color=color, alpha=alpha, legend_label=legend_label, muted_alpha=0.1)
+        fig.circle(x=x, y=y, source=source, radius=0)
+    
     return line
 
 
@@ -36,6 +49,13 @@ def _setStyle(fig, location="top_left"):
     fig.legend.click_policy = "mute"
     fig.legend.location = location
     fig.legend.label_text_font_size = "9pt"
+
+
+def showCandleBollinger(width: int, height: int, df: pd.DataFrame, **options):
+    if "mavolu" not in df:
+        genBaseIndicator(df)
+    cds = ColumnDataSource(df)
+    show(plotCandleBollinger(width, height, cds, **options))
 
 
 def plotCandleBollinger(width: int, height: int, cds: ColumnDataSource, **options):
@@ -64,10 +84,10 @@ def plotCandleBollinger(width: int, height: int, cds: ColumnDataSource, **option
     _figLine(fig, 'reg_day', 'ma60', cds, 2, ORANGE[3], 0.8, 'ma60')
     fig.y_range = Range1d(min(cds.data["close"]) * 0.9, max(cds.data["close"])*1.1)
 
-    fig.extra_y_ranges = {'volume': Range1d(np.nanmin(cds.data["mavolu"])*0.9, np.nanmax(cds.data["mavolu"])*1.1)}
-    fig.add_layout(LinearAxis(y_range_name='volume'), 'right')
-    fig.line('reg_day', 'mavolu', line_width=2, color=ORANGE[6], alpha=0.7, source=cds, legend_label='ma_volume', muted_alpha=0, y_range_name='volume')
-    fig.circle('reg_day', 'mavolu', source=cds, radius=0, y_range_name='volume')
+    if "mavolu" in cds.data:
+        fig.extra_y_ranges = {'volume': Range1d(np.nanmin(cds.data["mavolu"])*0.9, np.nanmax(cds.data["mavolu"])*1.1)}
+        fig.add_layout(LinearAxis(y_range_name='volume'), 'right')
+        _ = _figLine(fig, 'reg_day', 'mavolu',  cds, 2, ORANGE[6], 0.7, "ma_volume", "volume")
 
     _setStyle(fig)
     fig.add_tools(HoverTool(
@@ -86,6 +106,13 @@ def plotCandleBollinger(width: int, height: int, cds: ColumnDataSource, **option
     ))
 
     return fig
+
+
+def showMovingAverage(width: int, height: int, df: pd.DataFrame, **options):
+    if "mavolu" not in df:
+        genBaseIndicator(df)
+    cds = ColumnDataSource(df)
+    show(plotMovingAverage(width, height, cds, **options))
 
 
 def plotMovingAverage(width: int, height: int, cds: ColumnDataSource, **options):
@@ -128,6 +155,13 @@ def plotMovingAverage(width: int, height: int, cds: ColumnDataSource, **options)
     return fig
 
 
+def showMacd(width: int, height: int, df: pd.DataFrame, **options):
+    if "mavolu" not in df:
+        genBaseIndicator(df)
+    cds = ColumnDataSource(df)
+    show(plotMacd(width, height, cds, **options))
+
+
 def plotMacd(width: int, height: int, cds: ColumnDataSource, **options):
     toolbar_location = options.get("toolbar_location", "above")
     local_tools = options.get("tools", tools)
@@ -166,6 +200,11 @@ def plotMacd(width: int, height: int, cds: ColumnDataSource, **options):
     return fig
 
 
+def showTimeseriesLines(width: int, height: int, df: pd.DataFrame, x: str = "reg_day", ylist: list = [], **options):
+    cds = ColumnDataSource(df)
+    show(plotTimeseriesLines(width, height, cds, x, ylist, **options))
+
+
 def plotTimeseriesLines(width: int, height: int, cds: ColumnDataSource, x: str = "reg_day", ylist: list = [], **options):
     toolbar_location = options.get("toolbar_location", "above")
     local_tools = options.get("tools", tools)
@@ -181,7 +220,7 @@ def plotTimeseriesLines(width: int, height: int, cds: ColumnDataSource, x: str =
         if idx == 0:
             base_line = _figLine(fig, x, y,  cds, 1, COLOR[idx], 0.8, y)
         else:
-            _figLine(fig, x, y,  cds, 1, COLOR[idx*2 if idx < 11 else idx*2-1], 0.6 if idx < 11 else 0.8, y)
+            _ = _figLine(fig, x, y,  cds, 1, COLOR[idx*2 if idx < 11 else idx*2-1], 0.6 if idx < 11 else 0.8, y)
         tooltips.append((y, f"@{y}" + "{,.03f}"))
     fig.renderers.extend([Span(location=base_y, dimension='width', line_color="forestgreen", line_width=0.5)])
     
@@ -200,14 +239,3 @@ def plotTimeseriesLines(width: int, height: int, cds: ColumnDataSource, x: str =
     ))
     
     return fig
-
-
-
-
-
-
-
-
-
-
-

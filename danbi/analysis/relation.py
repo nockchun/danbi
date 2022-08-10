@@ -1,6 +1,6 @@
 import numpy as np
 
-def anaCorrelation(df, positive=0.8, negative=0.8, method="pearson", once=True, no_rate=False, group_result=False):
+def anaCorrelation(df, positive=0.8, negative=0.8, method="spearman", once=True, no_rate=False, group_result=False):
     if group_result:
         no_rate = True
         

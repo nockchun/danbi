@@ -1,5 +1,25 @@
+from typing import List
 import pandas as pd
 import numpy as np
+
+
+def getMinMaxRows(df: pd.DataFrame, cols: List[str] = None):
+    """Extract only min/max rows from each column in pandas dataframe.
+
+    Args:
+        df (pd.DataFrame): target dataframe.
+        cols (List[str], optional): If specified, it is executed only for the specified columns. Defaults to None.
+
+    Returns:
+        _type_: _description_
+    """
+    minmax_rows = set()
+    for col in df.columns[[dtype.kind in ["i", "f"] for dtype in df.dtypes]] if cols is None else cols:
+        minmax_rows.add(df[col].idxmin())
+        minmax_rows.add(df[col].idxmax())
+        
+    return df.iloc[list(minmax_rows)]
+
 
 class ZeroBaseMinMaxScaler():
     def __init__(self, base_range=(-1, 1)):
@@ -52,12 +72,14 @@ class ZeroBaseMinMaxScaler():
                 continue
             if (len(include_fields) > 0) and (column not in include_fields):
                 continue
-            if data[column].dtype in [int, float]:
+            if data[column].dtype.kind in ["i", "f"]:
+                is_combine = False
                 for fields in combine_fields:
                     if column in fields:
                         self.fit(np.concatenate([data[field].values for field in fields]), column, cleave)
-                    else:
-                        self.fit(data[column].values, column, cleave)
+                        is_combine = True
+                if not is_combine:
+                    self.fit(data[column].values, column, cleave)
         
     def transform(self, data, field="base"):
         # data = data.astype("float32")
