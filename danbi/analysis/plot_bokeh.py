@@ -3,9 +3,11 @@ from bokeh.models import HoverTool,WheelZoomTool, PanTool, ResetTool, CrosshairT
 from bokeh.io import show, output_notebook, curdoc
 from bokeh.plotting import figure
 from bokeh.layouts import gridplot, row, column, layout
-from bokeh.palettes import Category20, Category20b, Blues, Reds, Purples, Oranges, YlGn
 from bokeh.models.formatters import PrintfTickFormatter, NumeralTickFormatter, DatetimeTickFormatter
+from bokeh.palettes import Blues, Reds, Purples, Oranges, Greens, Greys, YlGn, RdPu, Category10, Category20, Category20b, Set1, Set2, Set3
 
+from typing import List, Tuple, Union
+import datetime
 import numpy as np
 import pandas as pd
 
@@ -19,18 +21,119 @@ def setJupyterNotebookBokehEnable():
     output_notebook(resources=INLINE)
 
 
-def showAsRows(*args):
-    chart_rows = gridplot([[chart] for chart in args])
+def showPandas(df: pd.DataFrame, xlist: Union[str, List[str]], ylist: List[Tuple[str, str]], typeList: Union[str, List[List[str]]] = "line", width: int = 1500, height: int = 400, col_dir: bool = True, sync_axis: str = "xy", graph_widths: Union[int, List[int]] = 1, line_colors: List[str] = None, hover=True, **options):
+    cds = ColumnDataSource(df)
+    
+    toolbar_location = options.get("toolbar_location", "above")
+    legend_location = options.get("legend_location", "top_right")
+    local_tools = options.get("tools", tools)
+    title = options.get("title", "Learning History")
+    title_size = options.get("title_size", "11pt")
+    format_datetime = options.get("format_datetime", "%Y-%m-%d")
+    COLOR = [Category20b[20][idx] for idx in range(1, 20, 4)] + list(Set1[9]) + list(Category10[10]) + [Category20[20][idx] for idx in range(0, 20, 2)] + list(Set2[8]) + \
+        [Category20b[20][idx] for idx in range(0, 20, 4)] + [Category20[20][idx] for idx in range(1, 20, 2)] + \
+        list(Set3[12]) + [Category20b[20][idx] for idx in range(2, 20, 4)] + [Category20b[20][idx] for idx in range(3, 20, 4)]
+    
+    len_y = len(ylist)
+    if col_dir:
+        width = int(width/len_y)
+    else:
+        height = int(height/len_y)
+    
+    if isinstance(xlist, str):
+        xlist = [xlist for _ in range(len_y)]
+    if isinstance(typeList, str):
+        typeList = [typeList for _ in range(len_y)]
+    
+    plot_figures = []
+    for idx, (xname, ynames) in enumerate(zip(xlist, ylist)):
+        fig = figure(plot_width=width, plot_height=height, title=" & ".join(ynames), tools=local_tools, toolbar_location=toolbar_location)
+
+        if isinstance(graph_widths, int):
+            graph_widths = [graph_widths for _ in range(len(ynames))]
+        else:
+            if len(graph_widths) < len(ynames):
+                for _ in range(len(graph_widths), len(ynames)):
+                    graph_widths.append(graph_widths[-1])
+        tooltips = [(f"{xname}", f"@{xname}")]
+        types = typeList[idx]
+        if isinstance(types, str):
+            types = [types for _ in range(len(ynames))]
+        for idx, name in enumerate(ynames):
+            if types[idx] == "line":
+                fig_each = fig.line(x=xname, y=name, source=cds, line_width=graph_widths[idx], color=COLOR[idx % 50], legend_label=name, alpha=0.8, muted_alpha=0.02)
+            elif types[idx] == "scatter":
+                fig_each = fig.scatter(x=xname, y=name, source=cds, size=graph_widths[idx], color=COLOR[idx % 50], legend_label=name, alpha=0.8, muted_alpha=0.02)
+            
+            if idx == 0:
+                fig_base = fig_each
+            tooltips.append((f"{name}", f"@{name}"))
+        if hover:
+            fig.add_tools(HoverTool(
+                tooltips=tooltips,
+                mode="vline",
+                renderers=[fig_base]
+            ))
+        fig.title.text_font_size = title_size
+        fig.grid.grid_line_alpha = 0.3
+        fig.legend.border_line_alpha = 0
+        fig.legend.background_fill_alpha = 0
+        fig.legend.click_policy = "mute"
+        fig.legend.location = legend_location
+        if isinstance(cds.data[xname][0], datetime.date):
+            fig.xaxis.formatter = DatetimeTickFormatter(years=[format_datetime], months=[format_datetime], days=[format_datetime])
+
+        plot_figures.append(fig)
+    
+    if sync_axis is not None:
+        for plot1 in plot_figures:
+            for plot2 in plot_figures:
+                if "x" in sync_axis:
+                    plot1.x_range = plot2.x_range
+                if "y" in sync_axis:
+                    plot1.y_range = plot2.y_range
+
+    chart_rows = gridplot([plot_figures] if col_dir else [[plot] for plot in plot_figures])
+    curdoc().add_root(chart_rows)
+    show(chart_rows)
+
+
+def showTensorflowLearningHistory(history, width: int = 1500, height: int = 400, legend: str = "bottm_left"):
+    ylist = []
+    keys = history.history.keys()
+    for key in keys:
+        if not key.startswith("val_"):
+            validation = "val_"+key
+            if validation in keys:
+                ylist.append([key, "val_"+key])
+            else:
+                ylist.append([key])
+            
+    showPandas(
+        pd.DataFrame(history.history), "index", ylist, "line", 1500, 400, True, "x", [2, 1],
+        {"legend_location": legend}
+    )
+
+
+def showAsRows(plots: List[figure], sync_axis: str = "xy"):
+    for plot1 in plots:
+        for plot2 in plots:
+            if "x" in sync_axis:
+                plot1.x_range = plot2.x_range
+            if "y" in sync_axis:
+                plot1.y_range = plot2.y_range
+    
+    chart_rows = gridplot([[plot] for plot in plots])
     curdoc().add_root(chart_rows)
     show(chart_rows)
 
 
 def _figLine(fig, x, y, source, line_width, color, alpha, legend_label, y_range_name=None):
     if y_range_name:
-        line = fig.line(x=x, y=y, source=source, line_width=line_width, color=color, alpha=alpha, legend_label=legend_label, muted_alpha=0.1, y_range_name=y_range_name)
+        line = fig.line(x=x, y=y, source=source, line_width=line_width, color=color, alpha=alpha, legend_label=legend_label, muted_alpha=0.05, y_range_name=y_range_name)
         fig.circle(x=x, y=y, source=source, radius=0, y_range_name=y_range_name)
     else:
-        line = fig.line(x=x, y=y, source=source, line_width=line_width, color=color, alpha=alpha, legend_label=legend_label, muted_alpha=0.1)
+        line = fig.line(x=x, y=y, source=source, line_width=line_width, color=color, alpha=alpha, legend_label=legend_label, muted_alpha=0.05)
         fig.circle(x=x, y=y, source=source, radius=0)
     
     return line
@@ -51,48 +154,73 @@ def _setStyle(fig, location="top_left"):
     fig.legend.label_text_font_size = "9pt"
 
 
-def showCandleBollinger(width: int, height: int, df: pd.DataFrame, **options):
+def getBokehDataSource(df: pd.DataFrame) -> ColumnDataSource:
+    return ColumnDataSource(df)
+
+
+def showCandleBollingerIchimoku(df: pd.DataFrame, width: int = 1000, height: int = 300, **options):
     if "mavolu" not in df:
-        genBaseIndicator(df)
+        df = genBaseIndicator(df)
     cds = ColumnDataSource(df)
-    show(plotCandleBollinger(width, height, cds, **options))
+    show(plotCandleBollingerIchimoku(cds, width, height, **options))
 
 
-def plotCandleBollinger(width: int, height: int, cds: ColumnDataSource, **options):
+def plotCandleBollingerIchimoku(cds: ColumnDataSource, width: int = 1000, height: int = 300, candle=True, bollinger=True, ma=True, vol_ma=True, ichimoku=True, **options):
     toolbar_location = options.get("toolbar_location", "above")
     local_tools = options.get("tools", tools)
-    title = options.get("title", "Candle & Boillinger Bands")
-    BLUE, RED, ORANGE = Blues[9], Reds[9], Oranges[9]
-
-    # Candle Chart
+    title = options.get("title", "Candle & Boillinger Bands & Ichimoku")
+    BLUE, RED, ORANGE, GREEN, GRAY, RDPU = Blues[9], Reds[9], Oranges[9], Greens[9], Greys[9], RdPu[9]
     fig = figure(plot_width=width, plot_height=height, x_axis_type="datetime", title=title, tools=local_tools, toolbar_location=toolbar_location)
-    inc = cds.data["open"] <= cds.data["close"]
-    dec = cds.data["close"] < cds.data["open"]
-    view_inc = CDSView(source=cds, filters=[BooleanFilter(inc)])
-    view_dec = CDSView(source=cds, filters=[BooleanFilter(dec)])
-    width = 12*60*60*1500
-    fig.segment(x0="reg_day", x1="reg_day", y0="low", y1="high", color=RED[1], source=cds, view=view_inc)
-    fig.segment(x0="reg_day", x1="reg_day", y0="low", y1="high", color=BLUE[1], source=cds, view=view_dec)
-    fig.vbar(x='reg_day', width=width, top='open', bottom='close', fill_color=RED[1], line_color=RED[1], source=cds, view=view_inc)
-    fig.vbar(x='reg_day', width=width, top='open', bottom='close', fill_color=BLUE[1], line_color=BLUE[1], source=cds, view=view_dec)
     
-    band = Band(base='reg_day', lower='bbl', upper='bbu', source=cds, level='underlay', fill_alpha=0.3, line_width=1, line_color=BLUE[3], fill_color=BLUE[6])
-    fig.add_layout(band)
+    base_line = fig.line(x="reg_day", y="close", source=cds, line_width=0, color="green", alpha=0)
     
-    base_line = _figLine(fig, 'reg_day', 'ma5',  cds, 1, BLUE[0],   0.5, 'ma5')
-    _figLine(fig, 'reg_day', 'ma20', cds, 1, BLUE[0],   0.8, 'ma20')
-    _figLine(fig, 'reg_day', 'ma60', cds, 2, ORANGE[3], 0.8, 'ma60')
-    fig.y_range = Range1d(min(cds.data["close"]) * 0.9, max(cds.data["close"])*1.1)
-
-    if "mavolu" in cds.data:
-        fig.extra_y_ranges = {'volume': Range1d(np.nanmin(cds.data["mavolu"])*0.9, np.nanmax(cds.data["mavolu"])*1.1)}
-        fig.add_layout(LinearAxis(y_range_name='volume'), 'right')
-        _ = _figLine(fig, 'reg_day', 'mavolu',  cds, 2, ORANGE[6], 0.7, "ma_volume", "volume")
+    # Bollenger Bands
+    if bollinger:
+        fig.varea(x='reg_day', y1='bbl', y2='bbu', source=cds, fill_alpha=0.3, fill_color=BLUE[6], legend_label = "bollinger bands", muted_alpha=0)
+    
+    # Candle Chart
+    if candle:
+        inc = cds.data["open"] <= cds.data["close"]
+        dec = cds.data["close"] < cds.data["open"]
+        view_inc = CDSView(source=cds, filters=[BooleanFilter(inc)])
+        view_dec = CDSView(source=cds, filters=[BooleanFilter(dec)])
+        width = 12*60*60*1500
+        fig.segment(x0="reg_day", x1="reg_day", y0="low", y1="high", color=RED[1], source=cds, view=view_inc, legend_label="candle", muted_alpha=0)
+        fig.segment(x0="reg_day", x1="reg_day", y0="low", y1="high", color=BLUE[1], source=cds, view=view_dec, legend_label="candle", muted_alpha=0)
+        fig.vbar(x='reg_day', width=width, top='open', bottom='close', fill_color=RED[1], line_color=RED[1], source=cds, view=view_inc, legend_label="candle", muted_alpha=0)
+        fig.vbar(x='reg_day', width=width, top='open', bottom='close', fill_color=BLUE[1], line_color=BLUE[1], source=cds, view=view_dec, legend_label="candle", muted_alpha=0)
+    
+    # Moving Average
+    if ma:
+        _figLine(fig, 'reg_day', 'ma5',  cds, 1.2, RED[2],   0.5, 'ma5')
+        _figLine(fig, 'reg_day', 'ma20', cds, 1.6, BLUE[0],   0.5, 'ma20')
+        _figLine(fig, 'reg_day', 'ma60', cds, 2, ORANGE[3], 0.8, 'ma60')
+    
+    # Ichimoku
+    if ichimoku:
+        _figLine(fig, 'reg_day', 'ISB_26', cds, 1.1, GRAY[0], 0.7, 'ichimoku cloud')
+        _figLine(fig, 'reg_day', 'ISA_9', cds, 1, GRAY[3], 0.7, 'ichimoku cloud')
+        fig.varea(x='reg_day', y1='ISB_26', y2='ISA_9', source=cds, fill_alpha=0.3, fill_color=GRAY[6], legend_label = "ichimoku cloud", muted_alpha=0)
+        _figLine(fig, 'reg_day', 'IKS_26', cds, 1.8, GREEN[0], 0.7, 'ichimoku base line')
+        _figLine(fig, 'reg_day', 'ITS_9', cds, 1.4, GREEN[1], 0.7, 'ichimoku transition line')
+        _figLine(fig, 'reg_day', 'ICS_26', cds, 1.4, RDPU[2], 0.7, 'ichimoku trailing line')
+    
+    # Volume Moving Average
+    if vol_ma:
+        fig.y_range = Range1d(min(cds.data["close"]) * 0.9, max(cds.data["close"])*1.1)
+        if "mavolu" in cds.data:
+            fig.extra_y_ranges = {'volume': Range1d(np.nanmin(cds.data["mavolu"])*0.9, np.nanmax(cds.data["mavolu"])*1.1)}
+            fig.add_layout(LinearAxis(y_range_name='volume'), 'right')
+            _ = _figLine(fig, 'reg_day', 'mavolu',  cds, 2, ORANGE[6], 0.7, "ma_volume", "volume")
 
     _setStyle(fig)
     fig.add_tools(HoverTool(
         tooltips=[
             ("date", "@reg_day{%F}"),
+            ("close", "@close{,}"),
+            ("high", "@high{,}"),
+            ("low", "@low{,}"),
+            ("open", "@open{,}"),
             ("ma5", "@ma5{,}"),
             ("ma20", "@ma20{,}"),
             ("ma60", "@ma60{,}"),
@@ -108,14 +236,14 @@ def plotCandleBollinger(width: int, height: int, cds: ColumnDataSource, **option
     return fig
 
 
-def showMovingAverage(width: int, height: int, df: pd.DataFrame, **options):
+def showMovingAverage(df: pd.DataFrame, width: int = 1000, height: int = 300, **options):
     if "mavolu" not in df:
         genBaseIndicator(df)
     cds = ColumnDataSource(df)
-    show(plotMovingAverage(width, height, cds, **options))
+    show(plotMovingAverage(cds, width, height, **options))
 
 
-def plotMovingAverage(width: int, height: int, cds: ColumnDataSource, **options):
+def plotMovingAverage(cds: ColumnDataSource, width: int = 1000, height: int = 300, **options):
     toolbar_location = options.get("toolbar_location", "above")
     local_tools = options.get("tools", tools)
     title = options.get("title", "Moving Average")
@@ -128,7 +256,6 @@ def plotMovingAverage(width: int, height: int, cds: ColumnDataSource, **options)
     _figLine(fig, 'reg_day', 'ma20',  cds, 1, COLOR[8],  0.9, 'ma20')
     _figLine(fig, 'reg_day', 'ma60',  cds, 2, COLOR[2],  0.7, 'ma60')
     _figLine(fig, 'reg_day', 'ma120', cds, 2, COLOR[16], 1,   'ma120')
-    _figLine(fig, 'reg_day', 'ma240', cds, 2, COLOR[14], 1,   'ma240')
     fig.y_range = Range1d(min(cds.data["close"]) * 0.7, max(cds.data["close"])*1.05)
     
     fig.extra_y_ranges = {'volume': Range1d(np.nanmin(cds.data["volume"]), np.nanmax(cds.data["volume"])*1.5)}
@@ -155,14 +282,14 @@ def plotMovingAverage(width: int, height: int, cds: ColumnDataSource, **options)
     return fig
 
 
-def showMacd(width: int, height: int, df: pd.DataFrame, **options):
+def showMacd(df: pd.DataFrame, width: int = 1000, height: int = 300, **options):
     if "mavolu" not in df:
         genBaseIndicator(df)
     cds = ColumnDataSource(df)
-    show(plotMacd(width, height, cds, **options))
+    show(plotMacd(cds, width, height, **options))
 
 
-def plotMacd(width: int, height: int, cds: ColumnDataSource, **options):
+def plotMacd(cds: ColumnDataSource, width: int = 1000, height: int = 300, **options):
     toolbar_location = options.get("toolbar_location", "above")
     local_tools = options.get("tools", tools)
     title = options.get("title", "MACD")
@@ -200,12 +327,12 @@ def plotMacd(width: int, height: int, cds: ColumnDataSource, **options):
     return fig
 
 
-def showTimeseriesLines(width: int, height: int, df: pd.DataFrame, x: str = "reg_day", ylist: list = [], **options):
+def showTimeseriesLines(df: pd.DataFrame, width: int, height: int, x: str = "reg_day", ylist: list = [], **options):
     cds = ColumnDataSource(df)
-    show(plotTimeseriesLines(width, height, cds, x, ylist, **options))
+    show(plotTimeseriesLines(cds, width, height, x, ylist, **options))
 
 
-def plotTimeseriesLines(width: int, height: int, cds: ColumnDataSource, x: str = "reg_day", ylist: list = [], **options):
+def plotTimeseriesLines(cds: ColumnDataSource, width: int = 1000, height: int = 300, x: str = "reg_day", ylist: list = [], **options):
     toolbar_location = options.get("toolbar_location", "above")
     local_tools = options.get("tools", tools)
     title = options.get("title", "Timeseries Lines")

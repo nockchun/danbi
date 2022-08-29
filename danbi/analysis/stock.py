@@ -1,6 +1,6 @@
 import pandas as pd, pandas_ta as ta
 
-def genBaseIndicator(df: pd.DataFrame, cols_for_new: list = []):
+def genBaseIndicator(df: pd.DataFrame, cols_for_new: list = [], ichimoku=True) -> pd.DataFrame:
     if len(cols_for_new) > 0:
         df_result = df[cols_for_new]
     else:
@@ -24,6 +24,12 @@ def genBaseIndicator(df: pd.DataFrame, cols_for_new: list = []):
     df_result["dmn"] = ta.sma(df.dmn, 5)
     df_result["adxpn"] = df_result.dmp - df_result.dmn
     df_result["obv"] = ta.obv(df.close, df.volume)
+    
+    # ichimoku
+    if ichimoku:
+        ichimoku = ta.ichimoku(df.high, df.low, df.close, tenkan=9, kijun=26, senkou=52)
+        ichimoku[1]["reg_day"] = list(pd.date_range(start=str(df.reg_day.values[-1] + pd.Timedelta("1D")), freq='B', periods=26))
+        df_result = pd.concat([df_result, ichimoku[0]], axis=1)
+        df_result = df_result.append(ichimoku[1].to_dict(orient="records"), ignore_index=True)
 
-    if len(cols_for_new) > 0:
-        return df_result
+    return df_result

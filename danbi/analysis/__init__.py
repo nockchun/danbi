@@ -11,9 +11,13 @@ from .convert import (
     convDfToTimeseriesTfDataset, convDfsToTimeseriesTfDataset
 )
 from .plot_bokeh import (
-    tools, setJupyterNotebookBokehEnable, showAsRows,
-    plotCandleBollinger, showCandleBollinger,
+    tools, getBokehDataSource, setJupyterNotebookBokehEnable, showAsRows, showPandas,
+    plotCandleBollingerIchimoku, showCandleBollingerIchimoku,
     plotMovingAverage, showMovingAverage,
     plotMacd, showMacd,
     plotTimeseriesLines, showTimeseriesLines,
+    showTensorflowLearningHistory
+)
+from .pandas_ext import (
+    DanbiExtendFrame
 )
