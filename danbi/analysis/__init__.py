@@ -1,4 +1,3 @@
-from .RayActorPool import RayActorPool
 from .normalization import (
     getMinMaxRows,
     ZeroBaseMinMaxScaler
@@ -7,8 +6,7 @@ from .relation import (
     anaCorrelation, anaCorrelationFuture
 )
 from .convert import (
-    convDfTypes, convDfsToContinuousDfs,
-    convDfToTimeseriesTfDataset, convDfsToTimeseriesTfDataset
+    convDfTypes, convDfsToContinuousDfs
 )
 from .plot_bokeh import (
     tools, getBokehDataSource, setJupyterNotebookBokehEnable, showAsRows, showPandas,

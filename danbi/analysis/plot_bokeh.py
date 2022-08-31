@@ -169,6 +169,7 @@ def plotCandleBollingerIchimoku(cds: ColumnDataSource, width: int = 1000, height
     toolbar_location = options.get("toolbar_location", "above")
     local_tools = options.get("tools", tools)
     title = options.get("title", "Candle & Boillinger Bands & Ichimoku")
+    trade_symbol_size = options.get("trade_symbol_size", 12)
     BLUE, RED, ORANGE, GREEN, GRAY, RDPU = Blues[9], Reds[9], Oranges[9], Greens[9], Greys[9], RdPu[9]
     fig = figure(plot_width=width, plot_height=height, x_axis_type="datetime", title=title, tools=local_tools, toolbar_location=toolbar_location)
     
@@ -212,6 +213,11 @@ def plotCandleBollingerIchimoku(cds: ColumnDataSource, width: int = 1000, height
             fig.extra_y_ranges = {'volume': Range1d(np.nanmin(cds.data["mavolu"])*0.9, np.nanmax(cds.data["mavolu"])*1.1)}
             fig.add_layout(LinearAxis(y_range_name='volume'), 'right')
             _ = _figLine(fig, 'reg_day', 'mavolu',  cds, 2, ORANGE[6], 0.7, "ma_volume", "volume")
+    
+    # Trade
+    if "env_buy" in cds.data:
+        fig.scatter(x="reg_day", y="env_buy", source=cds, size=trade_symbol_size, color="red", marker="triangle", legend_label="trade buy", muted_alpha=0.05)
+        fig.scatter(x="reg_day", y="env_sell", source=cds, size=trade_symbol_size, color="blue", marker="inverted_triangle", legend_label="trade sell", muted_alpha=0.05)
 
     _setStyle(fig)
     fig.add_tools(HoverTool(

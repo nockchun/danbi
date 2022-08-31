@@ -1,6 +1,6 @@
 import pandas as pd
 import numpy as np
-from typing import List, Callable
+from typing import Union, List, Callable
 
 @pd.api.extensions.register_dataframe_accessor("bi")
 class DanbiExtendFrame:
@@ -8,20 +8,31 @@ class DanbiExtendFrame:
         self._obj = pandas_obj
         self._len = len(pandas_obj)
 
-    def rollapply(self, window: int, func: Callable):
+    def rollapply(self, window: int, func: Callable, test: int = 0, future: bool = False):
         results = []
-        for rows in self._obj.rolling(window):
-            if len(rows) < window:
-                continue
-            results.append(func(rows))
-        if len(results) > 0:
-            if isinstance(results[0], tuple):
-                results = [[np.nan for _ in range(len(results[0]))] for _ in range(window-1)] + results
-            else:
-                results = [np.nan for _ in range(window-1)] + results
-        
-        return results
+        if test > 0:
+            for idx, df in enumerate(self._obj.rolling(window)):
+                if len(df) < window:
+                    continue
+                if idx + 1 >= window + test:
+                    break
+                results.append(func(df))
 
+            return results
+        else:
+            for df in self._obj.rolling(window):
+                if len(df) < window:
+                    continue
+                results.append(func(df))
+            
+            if len(results) > 0:
+                if isinstance(results[0], tuple):
+                    nan = [[np.nan for _ in range(len(results[0]))] for _ in range(window-1)]
+                else:
+                    nan = [np.nan for _ in range(window-1)]
+            
+            return results + nan if future else nan + results
+    
     def tail(self, offset: int, column: str):
         if offset < self._len:
             return self._obj.iloc[-offset - 1][column]
@@ -73,3 +84,31 @@ class DanbiExtendFrame:
             return all(is_incs)
         else:
             return any(is_incs)
+    
+    def _is_include(self, datas: List, criteria: str, value: Union[int, float, str]):
+        result = False
+        if isinstance(value, str):
+            inc_array = np.char.find(datas, value)
+            if len(inc_array[inc_array == 0]) > 0:
+                result = True
+        else:
+            if criteria == "=" and len(datas[datas == value]) > 0:
+                result = True
+            if criteria == ">" and len(datas[datas > value]) > 0:
+                result = True
+            if criteria == "<" and len(datas[datas < value]) > 0:
+                result = True
+        return result
+    
+    def tailInclude(self, period: int, column: str, criteria: str = "=", value: Union[int, float, str] = 1):
+        datas = self._obj[column].values[-period:]
+        return self._is_include(datas, criteria, value)
+    
+    def headInclude(self, period: int, column: str, criteria: str = "=", value: Union[int, float, str] = 1):
+        datas = self._obj[column].values[:period]
+        return self._is_include(datas, criteria, value)
+    
+
+
+
+
