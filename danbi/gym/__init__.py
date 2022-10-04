@@ -2,6 +2,7 @@ from .trade import (
     ACT
 )
 from .TradeSingleEnv import TradeSingleEnv
+from .simulation import simStockTrade
 from gym.envs.registration import register
 
 register(

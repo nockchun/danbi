@@ -9,7 +9,7 @@ from .convert import (
     convDfTypes, convDfsToContinuousDfs
 )
 from .plot_bokeh import (
-    tools, getBokehDataSource, setJupyterNotebookBokehEnable, showAsRows, showPandas,
+    tools, getBokehDataSource, setJupyterNotebookBokehEnable, showAsRows, showAsGrid, showPandas,
     plotCandleBollingerIchimoku, showCandleBollingerIchimoku,
     plotMovingAverage, showMovingAverage,
     plotMacd, showMacd,

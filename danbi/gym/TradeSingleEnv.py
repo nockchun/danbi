@@ -22,6 +22,7 @@ class TradeSingleEnv(Env):
         self._buy_duration = 0
         self._invest_max = 0
         self._invest_accum = 0
+        self._score = 0
 
         # spaces
         self.action_space = Discrete(len(ACT))
@@ -30,6 +31,9 @@ class TradeSingleEnv(Env):
         # call init function
         self._init(df, window, future)
     
+    def getScore(self):
+        return self._score
+
     def getDf(self):
         return self._df
     
@@ -77,18 +81,26 @@ class TradeSingleEnv(Env):
         else:
             done = False
 
-        info = {}
+        info = {
+            "future": self._getFuture(),
+            "hold_price": self._buy_price,
+            "hold_amount": self._buy_amount,
+            "hold_duration": self._buy_duration,
+            "invest_max": self._investment_max
+        }
+        self._score += reward
 
         return (self._state, reward, done, info)
     
     def render(self, mode="human", width: int = 1000, height: int = 500, candle: bool = True, ma: bool = False, vol_ma: bool = False, ichimoku: bool = False):
         if mode == "plot":
-            height_side = int(height * 0.2)
+            height_up = int(height * 0.15)
+            height_dn = int(height * 0.2)
             ds = dana.getBokehDataSource(self._df)
             dana.showAsRows([
-                dana.plotTimeseriesLines(ds, width, height_side, ylist=["env_hold"], title="Holding Period"),
-                dana.plotCandleBollingerIchimoku(ds, width, 500 - height_side*2, candle=candle, ma=ma, vol_ma=vol_ma, ichimoku=ichimoku, title=f"Trading History"),
-                dana.plotTimeseriesLines(ds, width, height_side, ylist=["env_invest"], title="Cumulated Profit"),
+                dana.plotTimeseriesLines(ds, width, height_up, ylist=["env_hold"], title="Holding Period"),
+                dana.plotCandleBollingerIchimoku(ds, width, height - height_up - height_dn, candle=candle, ma=ma, vol_ma=vol_ma, ichimoku=ichimoku, title=f"Trading History"),
+                dana.plotTimeseriesLines(ds, width, height_dn, ylist=["env_invest"], title="Cumulated Profit"),
             ], "x")
 
     def _trade(self, action: ACT):
@@ -122,6 +134,7 @@ class TradeSingleEnv(Env):
         self._buy_duration = 0
         self._investment_max = 0
         self._invest_accum = 0
+        self._score = 0
         self._init(self._df, self._window, self._future)
 
         return self._state

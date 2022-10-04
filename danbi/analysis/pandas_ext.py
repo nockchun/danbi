@@ -33,6 +33,12 @@ class DanbiExtendFrame:
             
             return results + nan if future else nan + results
     
+    def tailCurrent(self, column: str):
+        return self._obj.iloc[-1][column]
+
+    def headCurrent(self, column: str):
+        return self._obj.iloc[0][column]
+
     def tail(self, offset: int, column: str):
         if offset < self._len:
             return self._obj.iloc[-offset - 1][column]
@@ -94,10 +100,11 @@ class DanbiExtendFrame:
         else:
             if criteria == "=" and len(datas[datas == value]) > 0:
                 result = True
-            if criteria == ">" and len(datas[datas > value]) > 0:
+            elif criteria == ">" and len(datas[datas > value]) > 0:
                 result = True
-            if criteria == "<" and len(datas[datas < value]) > 0:
+            elif criteria == "<" and len(datas[datas < value]) > 0:
                 result = True
+        
         return result
     
     def tailInclude(self, period: int, column: str, criteria: str = "=", value: Union[int, float, str] = 1):
@@ -108,6 +115,21 @@ class DanbiExtendFrame:
         datas = self._obj[column].values[:period]
         return self._is_include(datas, criteria, value)
     
+    def tailUp(self, period: int, column: str, criteria: str, value: Union[int, float, str], up_period: int, up_value: Union[int, float, str]):
+        datas = self._obj[column].values[-period:]
+        
+        has_state = self._is_include(datas, criteria, value)
+        is_up = (datas[-up_period] < datas[-1]) & (up_value < datas[-1])
+        
+        return has_state & is_up
+
+    def tailDn(self, period: int, column: str, criteria: str, value: Union[int, float, str], dn_period: int, dn_value: Union[int, float, str]):
+        datas = self._obj[column].values[-period:]
+        
+        has_state = self._is_include(datas, criteria, value)
+        is_up = (datas[-dn_period] > datas[-1]) & (dn_value > datas[-1])
+        
+        return has_state & is_up
 
 
 

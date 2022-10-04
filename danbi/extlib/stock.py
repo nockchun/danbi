@@ -10,11 +10,12 @@ def genBaseIndicator(df: pd.DataFrame, cols_for_new: list = [], ichimoku=True) -
     for ma in [5, 10, 20, 60, 120]:
         df_result[f"ma{ma}"] = ta.sma(df.close, ma)
     df_result["mavolu"] = ta.sma(df.volume, 10)
+    df["ma"] = ta.ema(df.close, 5).shift(-1)
     
     # disparity
     for ma in [10, 20, 60, 120]:
-        df_result[f"dsp{ma}"] = (df.ma5 - df[f"ma{ma}"]) / df.ma5
-        
+        df_result[f"dsp{ma}"] = (df.ma - df[f"ma{ma}"]) / df.ma
+    
     # bolinger, macd, rsi
     df_result[["bbl", "bbm", "bbu", "bbb", "bbp"]] = ta.bbands(df.close, length=20, std=2)
     df_result[["macd", "macdh", "macds"]] = ta.macd(df.close, fast=12, slow=26, signal=9)
@@ -24,6 +25,7 @@ def genBaseIndicator(df: pd.DataFrame, cols_for_new: list = [], ichimoku=True) -
     df_result["dmn"] = ta.sma(df.dmn, 5)
     df_result["adxpn"] = df_result.dmp - df_result.dmn
     df_result["obv"] = ta.obv(df.close, df.volume)
+    df_result[["stochk", "stochd"]] = ta.stoch(df.high, df.low, df.close, k=12, d=5, smooth_k=5)
     
     # ichimoku
     if ichimoku:

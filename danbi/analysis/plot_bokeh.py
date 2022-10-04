@@ -11,7 +11,7 @@ import datetime
 import numpy as np
 import pandas as pd
 
-from .stock import genBaseIndicator
+from danbi.extlib.stock import genBaseIndicator
 
 tools = [PanTool(), WheelZoomTool(), ResetTool(), CrosshairTool(), BoxSelectTool(), BoxZoomTool(), SaveTool()]
 
@@ -128,6 +128,31 @@ def showAsRows(plots: List[figure], sync_axis: str = "xy"):
     show(chart_rows)
 
 
+def showAsGrid(plots: List[List[Union[figure, List[figure]]]], sync_axis: str = "xy"):
+    plots_flat = sum(plots, [])
+    for plot1 in plots_flat:
+        for plot2 in plots_flat:
+            if "x" in sync_axis:
+                plot1.x_range = plot2.x_range
+            if "y" in sync_axis:
+                plot1.y_range = plot2.y_range
+    
+    grid = []
+    for rows in plots:
+        row = []
+        for cols in rows:
+            if isinstance(cols, list):
+                col = column(cols)
+                row.append(col)
+            else:
+                row.append(cols)
+        grid.append(row)
+    
+    chart_rows = gridplot(grid)
+    curdoc().add_root(chart_rows)
+    show(chart_rows)
+
+
 def _figLine(fig, x, y, source, line_width, color, alpha, legend_label, y_range_name=None):
     if y_range_name:
         line = fig.line(x=x, y=y, source=source, line_width=line_width, color=color, alpha=alpha, legend_label=legend_label, muted_alpha=0.05, y_range_name=y_range_name)
@@ -165,7 +190,7 @@ def showCandleBollingerIchimoku(df: pd.DataFrame, width: int = 1000, height: int
     show(plotCandleBollingerIchimoku(cds, width, height, **options))
 
 
-def plotCandleBollingerIchimoku(cds: ColumnDataSource, width: int = 1000, height: int = 300, candle=True, bollinger=True, ma=True, vol_ma=True, ichimoku=True, **options):
+def plotCandleBollingerIchimoku(cds: ColumnDataSource, width: int = 1000, height: int = 300, candle: bool = True, bollinger: bool = True, ma: bool = True, vol_ma: bool = True, ichimoku: bool = True, trade: bool = True, **options):
     toolbar_location = options.get("toolbar_location", "above")
     local_tools = options.get("tools", tools)
     title = options.get("title", "Candle & Boillinger Bands & Ichimoku")
@@ -198,7 +223,7 @@ def plotCandleBollingerIchimoku(cds: ColumnDataSource, width: int = 1000, height
         _figLine(fig, 'reg_day', 'ma60', cds, 2, ORANGE[3], 0.8, 'ma60')
     
     # Ichimoku
-    if ichimoku:
+    if ichimoku and "ISB_26" in cds.data:
         _figLine(fig, 'reg_day', 'ISB_26', cds, 1.1, GRAY[0], 0.7, 'ichimoku cloud')
         _figLine(fig, 'reg_day', 'ISA_9', cds, 1, GRAY[3], 0.7, 'ichimoku cloud')
         fig.varea(x='reg_day', y1='ISB_26', y2='ISA_9', source=cds, fill_alpha=0.3, fill_color=GRAY[6], legend_label = "ichimoku cloud", muted_alpha=0)
@@ -215,7 +240,7 @@ def plotCandleBollingerIchimoku(cds: ColumnDataSource, width: int = 1000, height
             _ = _figLine(fig, 'reg_day', 'mavolu',  cds, 2, ORANGE[6], 0.7, "ma_volume", "volume")
     
     # Trade
-    if "env_buy" in cds.data:
+    if trade and ("env_buy" in cds.data):
         fig.scatter(x="reg_day", y="env_buy", source=cds, size=trade_symbol_size, color="red", marker="triangle", legend_label="trade buy", muted_alpha=0.05)
         fig.scatter(x="reg_day", y="env_sell", source=cds, size=trade_symbol_size, color="blue", marker="inverted_triangle", legend_label="trade sell", muted_alpha=0.05)
 
@@ -338,12 +363,13 @@ def showTimeseriesLines(df: pd.DataFrame, width: int, height: int, x: str = "reg
     show(plotTimeseriesLines(cds, width, height, x, ylist, **options))
 
 
-def plotTimeseriesLines(cds: ColumnDataSource, width: int = 1000, height: int = 300, x: str = "reg_day", ylist: list = [], **options):
+def plotTimeseriesLines(cds: ColumnDataSource, width: int = 1000, height: int = 300, x: str = "reg_day", ylist: list = [], trade: bool = False, **options):
     toolbar_location = options.get("toolbar_location", "above")
     local_tools = options.get("tools", tools)
     title = options.get("title", "Timeseries Lines")
     base_y = options.get("base_y", 0)
     area = options.get("area", [])
+    trade_symbol_size = options.get("trade_symbol_size", 12)
     
     COLOR = Category20[20]
     tooltips = []
@@ -360,6 +386,11 @@ def plotTimeseriesLines(cds: ColumnDataSource, width: int = 1000, height: int = 
     if len(area) == 2:
         fig.add_layout(BoxAnnotation(top=area[0], fill_alpha=0.05, fill_color=COLOR[6]))
         fig.add_layout(BoxAnnotation(bottom=area[1], fill_alpha=0.05, fill_color=COLOR[4]))
+
+    # Trade
+    if trade and ("env_buy" in cds.data):
+        fig.scatter(x="reg_day", y="env_buy", source=cds, size=trade_symbol_size, color="red", marker="triangle", legend_label="trade buy", muted_alpha=0.05)
+        fig.scatter(x="reg_day", y="env_sell", source=cds, size=trade_symbol_size, color="blue", marker="inverted_triangle", legend_label="trade sell", muted_alpha=0.05)
 
     _setStyle(fig)
     fig.add_tools(HoverTool(
