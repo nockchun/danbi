@@ -1,6 +1,6 @@
 from bokeh.models import ColumnDataSource, BooleanFilter, CDSView, Band, Range1d, LinearAxis, BoxAnnotation, Span
 from bokeh.models import HoverTool,WheelZoomTool, PanTool, ResetTool, CrosshairTool, BoxSelectTool, BoxZoomTool, SaveTool
-from bokeh.io import show, output_notebook, curdoc
+from bokeh.io import show, output_notebook, curdoc, export_png
 from bokeh.plotting import figure
 from bokeh.layouts import gridplot, row, column, layout
 from bokeh.models.formatters import PrintfTickFormatter, NumeralTickFormatter, DatetimeTickFormatter
@@ -223,14 +223,14 @@ def plotCandleBollingerIchimoku(cds: ColumnDataSource, width: int = 1000, height
         _figLine(fig, 'reg_day', 'ma60', cds, 2, ORANGE[3], 0.8, 'ma60')
     
     # Ichimoku
-    if ichimoku and "ISB_26" in cds.data:
-        _figLine(fig, 'reg_day', 'ISB_26', cds, 1.1, GRAY[0], 0.7, 'ichimoku cloud')
-        _figLine(fig, 'reg_day', 'ISA_9', cds, 1, GRAY[3], 0.7, 'ichimoku cloud')
-        fig.varea(x='reg_day', y1='ISB_26', y2='ISA_9', source=cds, fill_alpha=0.3, fill_color=GRAY[6], legend_label = "ichimoku cloud", muted_alpha=0)
-        _figLine(fig, 'reg_day', 'IKS_26', cds, 1.8, GREEN[0], 0.7, 'ichimoku base line')
-        _figLine(fig, 'reg_day', 'ITS_9', cds, 1.4, GREEN[1], 0.7, 'ichimoku transition line')
-        _figLine(fig, 'reg_day', 'ICS_26', cds, 1.4, RDPU[2], 0.7, 'ichimoku trailing line')
-    
+    if ichimoku and "imspan2" in cds.data:
+        _figLine(fig, 'reg_day', 'imspan2', cds, 1.1, GRAY[0], 0.7, 'ichimoku cloud')
+        _figLine(fig, 'reg_day', 'imspan1', cds, 1, GRAY[3], 0.7, 'ichimoku cloud')
+        fig.varea(x='reg_day', y1='imspan2', y2='imspan1', source=cds, fill_alpha=0.3, fill_color=GRAY[6], legend_label = "ichimoku cloud", muted_alpha=0)
+        _figLine(fig, 'reg_day', 'imbase', cds, 1.8, GREEN[0], 0.7, 'ichimoku base line')
+        _figLine(fig, 'reg_day', 'imtrans', cds, 1.4, GREEN[1], 0.7, 'ichimoku transition line')
+        _figLine(fig, 'reg_day', 'imtail', cds, 1.4, RDPU[2], 0.7, 'ichimoku trailing line')
+
     # Volume Moving Average
     if vol_ma:
         fig.y_range = Range1d(min(cds.data["close"]) * 0.9, max(cds.data["close"])*1.1)

@@ -7,10 +7,10 @@ def genBaseIndicator(df: pd.DataFrame, cols_for_new: list = [], ichimoku=True) -
         df_result = df
     
     # moving average
-    for ma in [5, 10, 20, 60, 120]:
+    for ma in [5, 10, 20, 60, 120, 240]:
         df_result[f"ma{ma}"] = ta.sma(df.close, ma)
     df_result["mavolu"] = ta.sma(df.volume, 10)
-    df["ma"] = ta.ema(df.close, 5).shift(-1)
+    df["ma"] = ta.ema(df.close, 5)
     
     # disparity
     for ma in [10, 20, 60, 120]:
@@ -33,5 +33,6 @@ def genBaseIndicator(df: pd.DataFrame, cols_for_new: list = [], ichimoku=True) -
         ichimoku[1]["reg_day"] = list(pd.date_range(start=str(df.reg_day.values[-1] + pd.Timedelta("1D")), freq='B', periods=26))
         df_result = pd.concat([df_result, ichimoku[0]], axis=1)
         df_result = df_result.append(ichimoku[1].to_dict(orient="records"), ignore_index=True)
+        df_result.rename(columns={"IKS_26": "imbase", "ITS_9": "imtrans", "ICS_26": "imtail", "ISA_9": "imspan1", "ISB_26": "imspan2"}, inplace=True)
 
     return df_result
