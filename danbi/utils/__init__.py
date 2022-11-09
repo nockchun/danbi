@@ -5,7 +5,8 @@ from .info import (
 from .day_time import (
     MO, TU, WE, TH, FR, SA, SU,
     getDaysBetween,
-    getDayPeriod
+    getDayPeriod,
+    getWeekday, getYearAnimal
 )
 from .jupyter import (
     asClassMethod, setWarningOff

@@ -37,8 +37,10 @@ def getDaysBetween(start: Union[str, datetime], end: Union[str, datetime],
 
 def getDayPeriod(base: Union[str, datetime] = None,
                  off_year: int = 0, off_month: int = 0, off_day: int = 0, off_week: int = 0,
+                 off_hour: int = 0, off_minute: int = 0, off_second: int = 0,
                  delta_year: int = 0, delta_month: int = 0, delta_day: int = 0, delta_week: int = 0,
-                 weekday: int = None, strftime: str = "%Y-%m-%d") -> Tuple[Union[str, datetime]]:
+                 delta_hour: int = 0, delta_minute: int = 0, delta_second: int = 0,
+                 weekday: int = None, format: str = "%Y-%m-%d", as_str: bool = True) -> Tuple[Union[str, datetime]]:
     """Find the start date and end date that satisfy the condition.
 
     Args:
@@ -52,7 +54,7 @@ def getDayPeriod(base: Union[str, datetime] = None,
         delta_day (int, optional): The period in days based on the base date.. Defaults to 0.
         delta_week (int, optional): The period in weeks based on the base date.. Defaults to 0.
         weekday (int, optional): Change the base date by a day of the week. Defaults to None.
-        strftime (str, optional): if set to None, returns datetime type. Defaults to "%Y-%m-%d".
+        format (str): if set to None, returns datetime type. Defaults to "%Y-%m-%d".
 
     Returns:
         tuple[Union[str, datetime]]: Returns a tuple of period day in 'str' or 'datetime' format. (start day, end day)
@@ -60,7 +62,7 @@ def getDayPeriod(base: Union[str, datetime] = None,
     if base is None:
         base_day = datetime.now()
     else:
-        base_day = datetime.strptime(base, "%Y-%m-%d") if isinstance(base, str) else base
+        base_day = datetime.strptime(base, format) if isinstance(base, str) else base
     
     if weekday != None:
         weeks = [MO, TU, WE, TH, FR, SA, SU]
@@ -69,16 +71,31 @@ def getDayPeriod(base: Union[str, datetime] = None,
         else:
             base_day = base_day + relativedelta(days=weekday-base_day.weekday())
 
-    start_day = base_day + relativedelta(years=off_year, months=off_month, days=off_day, weeks=off_week)
-    end_day = start_day + relativedelta(years=delta_year, months=delta_month, days=delta_day, weeks=delta_week)
+    start_day = base_day + relativedelta(years=off_year, months=off_month, days=off_day, weeks=off_week, hours=off_hour, minutes=off_minute, seconds=off_second)
+    end_day = start_day + relativedelta(years=delta_year, months=delta_month, days=delta_day, weeks=delta_week, hours=delta_hour, minutes=delta_minute, seconds=delta_second)
     
     if start_day > end_day:
         temp = start_day
         start_day = end_day
         end_day = temp
     
-    if strftime is not None:
-        start_day = start_day.strftime("%Y-%m-%d")
-        end_day = end_day.strftime("%Y-%m-%d")
+    if as_str:
+        start_day = start_day.strftime(format)
+        end_day = end_day.strftime(format)
     
     return start_day, end_day
+
+
+week_str = ['월', '화', '수', '목', '금', '토', '일']
+def getWeekday(day: Union[str, datetime], as_str: bool = False):
+    if isinstance(day, str):
+        day = datetime.strptime(day, "%Y-%m-%d")
+    weekday = day.weekday()
+    return week_str[weekday] if as_str else weekday
+
+
+animals=['원숭이','닭','개','돼지','쥐','소','범','토끼','용','뱀','말','양']
+def getYearAnimal(year: Union[str, int]):
+    if isinstance(year, str):
+        year = int(year)
+    return animals[year%12]
