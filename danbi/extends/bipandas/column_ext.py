@@ -33,7 +33,7 @@ class DanbiExtendSeries:
             
             return results + nan if future else nan + results
 
-    def getUpDnState(self, window: int, rate_dn: float = 1, rate_up: float = 1.1):
+    def getStateUpDn(self, window: int, rate_dn: float = 1, rate_up: float = 1.1) -> List:
         ups = self._col == self._col.rolling(window).min().shift(-window+1)
         dns = self._col == self._col.rolling(window).max().shift(-window+1)
         updn, term, is_up, is_change, s_val, e_val = [], [], False, False, 0, 0
