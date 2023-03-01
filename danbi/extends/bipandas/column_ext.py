@@ -33,7 +33,40 @@ class DanbiExtendSeries:
             
             return results + nan if future else nan + results
 
-    def getStateUpDn(self, window: int, rate_dn: float = 1, rate_up: float = 1.1) -> List:
+    def getStateUpDn(self, window: int, up_rate: float = 1, dn_rate: float = 1, future: bool = False) -> List:
+        if future:
+            ups = self._col == self._col.rolling(window).min().shift(-window+1)
+            dns = self._col == self._col.rolling(window).max().shift(-window+1)
+        else:
+            ups = self._col == self._col.rolling(window).min()
+            dns = self._col == self._col.rolling(window).max()
+        updn, term, is_up, is_change, s_val, e_val = [], [], False, False, 0, 0
+
+        for up, dn, val in zip(ups, dns, self._col):
+            if not np.isnan(val):
+                e_val = val
+            if is_change:
+                updn += term
+                term, is_change = [], False
+                s_val = val
+            term.append(is_up)
+
+            if not is_up and up: # dn -> up 으로 변환
+                is_up, is_change = True, True
+                if s_val != 0 and s_val * dn_rate < val: # dn상태가 rate_dn 조건을 만족하지 않음.
+                    term = list(np.logical_not(term))
+            elif is_up and dn: # up -> dn 으로 변환
+                is_up, is_change = False, True
+                if s_val != 0 and s_val * up_rate > val: # up상태가 rate_up 조건을 만족하지 않음.
+                    term = list(np.logical_not(term))
+
+        if (is_up and s_val * up_rate > e_val) or (not is_up and s_val * dn_rate < e_val):
+            term = list(np.logical_not(term))
+        updn += term
+        
+        return np.array(updn)
+
+    def updnFuture(self, window: int, rate_dn: float = 1, rate_up: float = 1.1) -> List:
         ups = self._col == self._col.rolling(window).min().shift(-window+1)
         dns = self._col == self._col.rolling(window).max().shift(-window+1)
         updn, term, is_up, is_change, s_val, e_val = [], [], False, False, 0, 0
@@ -62,6 +95,13 @@ class DanbiExtendSeries:
         
         return updn
 
-
+    def updnCurrent(self, window: int, up_rate: float = 0.1, dn_rate: float = -0.1, fillna: bool = True) -> List:
+        updn = self._col.pct_change(window)
+        updn.mask(updn > up_rate , 1, inplace=True)
+        updn.mask(updn < dn_rate, -1, inplace=True)
+        updn.mask((updn <= up_rate) & (updn >= dn_rate) & (updn < 0), -0.5, inplace=True)
+        updn.mask((updn <= up_rate) & (updn >= dn_rate) & (updn >= 0), 0.5, inplace=True)
+        
+        return updn.fillna(0) if fillna else updn
 
 
