@@ -66,7 +66,7 @@ class DanbiExtendSeries:
         
         return np.array(updn)
 
-    def updnFuture(self, window: int, rate_dn: float = 1, rate_up: float = 1.1) -> List:
+    def updnFuture(self, window: int, rate_dn: float = 0, rate_up: float = 0) -> List:
         ups = self._col == self._col.rolling(window).min().shift(-window+1)
         dns = self._col == self._col.rolling(window).max().shift(-window+1)
         updn, term, is_up, is_change, s_val, e_val = [], [], False, False, 0, 0
@@ -82,11 +82,11 @@ class DanbiExtendSeries:
 
             if not is_up and up: # dn -> up 으로 변환
                 is_up, is_change = True, True
-                if s_val != 0 and s_val * rate_dn < val: # dn상태가 rate_dn 조건을 만족하지 않음.
+                if s_val != 0 and s_val * (1+rate_dn) < val: # dn상태가 rate_dn 조건을 만족하지 않음.
                     term = list(np.logical_not(term))
             elif is_up and dn: # up -> dn 으로 변환
                 is_up, is_change = False, True
-                if s_val != 0 and s_val * rate_up > val: # up상태가 rate_up 조건을 만족하지 않음.
+                if s_val != 0 and s_val * (1+rate_up) > val: # up상태가 rate_up 조건을 만족하지 않음.
                     term = list(np.logical_not(term))
 
         if (is_up and s_val * rate_up > e_val) or (not is_up and s_val * rate_dn < e_val):
