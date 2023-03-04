@@ -10,12 +10,15 @@ from bokeh.plotting import figure
 from bokeh.layouts import gridplot, row, column, layout
 from bokeh.models.formatters import PrintfTickFormatter, NumeralTickFormatter, DatetimeTickFormatter
 from bokeh.palettes import Blues, Reds, Purples, Oranges, Greens, Greys, YlGn, RdPu, Category10, Category20, Category20b, Set1, Set2, Set3
+from bokeh.resources import INLINE
+from sklearn.preprocessing import MinMaxScaler
+from pandas.api.types import is_datetime64_any_dtype
 
 def setJupyterBokehEnable():
-    from bokeh.resources import INLINE
     output_notebook(resources=INLINE)
 
 tools = [PanTool(), WheelZoomTool(), ResetTool(), CrosshairTool(), BoxSelectTool(), BoxZoomTool(), SaveTool()]
+COLORSET = ['#13005A', '#222831', '#3A1078', '#EA8FEA', '#6A2C70', '#5254a3', '#8ca252', '#bd9e39', '#ad494a', '#a55194', '#6baed6', '#fd8d3c', '#74c476', '#9e9ac8', '#969696', '#9c9ede', '#cedb9c', '#e7cb94', '#e7969c', '#de9ed6', '#c6dbef', '#fdd0a2', '#c7e9c0', '#dadaeb', '#d9d9d9', '#1b9e77', '#d95f02', '#7570b3', '#e7298a', '#66a61e', '#e6ab02', '#a6761d', '#666666', '#b3e2cd', '#fdcdac', '#cbd5e8', '#f4cae4', '#e6f5c9', '#fff2ae', '#f1e2cc', '#cccccc', '#8dd3c7', '#ffffb3', '#bebada', '#fb8072', '#80b1d3', '#fdb462', '#b3de69', '#fccde5', '#d9d9d9', '#bc80bd', '#ccebc5', '#ffed6f']
 
 def showBokeh(fig: figure):
     show(fig)
@@ -135,9 +138,6 @@ def showPandas(df: pd.DataFrame, xlist: Union[str, List[str]], ylist: List[Tuple
     title = options.get("title", "Learning History")
     title_size = options.get("title_size", "11pt")
     format_datetime = options.get("format_datetime", "%Y-%m-%d")
-    COLOR = [Category20b[20][idx] for idx in range(1, 20, 4)] + list(Set1[9]) + list(Category10[10]) + [Category20[20][idx] for idx in range(0, 20, 2)] + list(Set2[8]) + \
-        [Category20b[20][idx] for idx in range(0, 20, 4)] + [Category20[20][idx] for idx in range(1, 20, 2)] + \
-        list(Set3[12]) + [Category20b[20][idx] for idx in range(2, 20, 4)] + [Category20b[20][idx] for idx in range(3, 20, 4)]
     
     len_y = len(ylist)
     if col_dir:
@@ -166,9 +166,9 @@ def showPandas(df: pd.DataFrame, xlist: Union[str, List[str]], ylist: List[Tuple
             types = [types for _ in range(len(ynames))]
         for idx, name in enumerate(ynames):
             if types[idx] == "line":
-                fig_each = fig.line(x=xname, y=name, source=cds, line_width=graph_widths[idx], color=COLOR[idx % 50], legend_label=name, alpha=0.8, muted_alpha=0.02)
+                fig_each = fig.line(x=xname, y=name, source=cds, line_width=graph_widths[idx], color=COLORSET[idx % 53], legend_label=name, alpha=0.8, muted_alpha=0.02)
             elif types[idx] == "scatter":
-                fig_each = fig.scatter(x=xname, y=name, source=cds, size=graph_widths[idx], color=COLOR[idx % 50], legend_label=name, alpha=0.8, muted_alpha=0.02)
+                fig_each = fig.scatter(x=xname, y=name, source=cds, size=graph_widths[idx], color=COLORSET[idx % 53], legend_label=name, alpha=0.8, muted_alpha=0.02)
             
             if idx == 0:
                 fig_base = fig_each
@@ -202,3 +202,21 @@ def showPandas(df: pd.DataFrame, xlist: Union[str, List[str]], ylist: List[Tuple
     chart_rows = gridplot([plot_figures] if col_dir else [[plot] for plot in plot_figures])
     curdoc().add_root(chart_rows)
     show(chart_rows)
+
+def plotScaledTimeseries(df, x: str, ylist: List[str], width: int = 1600, height: int = 300, title: str = "TAGS", is_scale: bool = True):
+    df_plot = df[[x] + ylist].copy()
+    if not is_datetime64_any_dtype(df_plot[x]):
+        df_plot[x] = pd.to_datetime(df_plot[x], utc=True)
+    if is_scale:
+        scaler = MinMaxScaler()
+        df_plot[ylist] = scaler.fit_transform(df_plot[ylist])
+    
+    ds = getBokehDataSource(df_plot)
+    fig = getBokehFigure(width, height, title)
+    for idx, name in enumerate(ylist):
+        if idx == 0:
+            base = setBokehLine(fig, ds, x, name, COLORSET[idx])
+        else:
+            setBokehLine(fig, ds, x, name, COLORSET[idx])
+    setBokehFigureStyle(fig, [], {"@daytime": "datetime"}, base)
+    return fig
