@@ -46,8 +46,8 @@ class DanbiExtendFrame:
         
         datas = self._obj[col_data].values
         labels = self._obj[col_label].values
-        for idx in range(win, len(datas) - len(next_label) + 1):
+        for idx in range(win, len(datas) - next_label[-1] + 1):
             win_data.append(datas[idx-win:idx])
-            win_label.append(labels[next_label + idx].flatten())
+            win_label.append(labels[next_label + idx - 1].flatten())
         
         return np.array(win_data), np.array(win_label)
