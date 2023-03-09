@@ -16,6 +16,6 @@ from .convert import (
 #     plotTimeseriesLines, showTimeseriesLines,
 #     showTensorflowLearningHistory
 # )
-from .pandas_ext import (
-    DanbiExtendFrame
-)
+# from .pandas_ext import (
+#     DanbiExtendFrame
+# )
