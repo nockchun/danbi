@@ -1,6 +1,6 @@
 from .bokeh import (
     setJupyterBokehEnable, getBokehDataSource, getBokehFigure, setBokehFigureStyle,
-    showBokeh, showAsRows, showAsGrid,
+    showBokeh, showAsRows, showAsGrid, showPandas,
     setBokehLine, setBokehMarke,
-    showPandas
+    plotScaledTimeseries
 )
