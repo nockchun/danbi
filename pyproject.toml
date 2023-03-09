@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "danbi"
-version = "0.2.86"
+version = "0.2.87"
 description = "python utility library"
 authors = ["nockchun <nockchun@gmail.com>"]
 license = "Apache-2.0"
@@ -20,7 +20,7 @@ classifiers = [
 include = [
     "LICENSE",
 ]
-`
+
 [tool.poetry.dependencies]
 python = "^3.7"
 
