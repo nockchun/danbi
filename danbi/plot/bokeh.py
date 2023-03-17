@@ -203,11 +203,14 @@ def showPandas(df: pd.DataFrame, xlist: Union[str, List[str]], ylist: List[Tuple
     curdoc().add_root(chart_rows)
     show(chart_rows)
 
-def plotScaledTimeseries(df, x: str, ylist: List[str], width: int = 1600, height: int = 300, title: str = "TAGS", is_scale: bool = True):
+def plotScaled(df, x: str, ylist: List[str], width: int = 1600, height: int = 300, hlines: List[float] = [], vlines: List[float] = [], title: str = "Scaled Timeseries", time: bool = True, scale: bool = True):
     df_plot = df[[x] + ylist].copy()
-    if not is_datetime64_any_dtype(df_plot[x]):
+    tooltips = []
+    formatters = {"@daytime": "datetime"}
+    if time and not is_datetime64_any_dtype(df_plot[x]):
         df_plot[x] = pd.to_datetime(df_plot[x], utc=True)
-    if is_scale:
+        formatters["@"+x] = "datetime"
+    if scale:
         scaler = MinMaxScaler()
         df_plot[ylist] = scaler.fit_transform(df_plot[ylist])
     
@@ -218,5 +221,16 @@ def plotScaledTimeseries(df, x: str, ylist: List[str], width: int = 1600, height
             base = setBokehLine(fig, ds, x, name, COLORSET[idx])
         else:
             setBokehLine(fig, ds, x, name, COLORSET[idx])
-    setBokehFigureStyle(fig, [], {"@daytime": "datetime"}, base)
+        tooltips.append((name, "@"+name+"{0,0[.]00}"))
+    
+    extend_lines = []
+    for hline in hlines:
+        extend_lines.append(Span(location=hline, dimension='width', line_color='#E90064', line_width=0.9, line_alpha=0.6, line_dash='dashed'))
+    for vline in vlines:
+        extend_lines.append(Span(location=vline, dimension='height', line_color='#E90064', line_width=0.9, line_alpha=0.6, line_dash='dashed'))
+
+    fig.renderers.extend(extend_lines)
+    
+    setBokehFigureStyle(fig, tooltips, formatters, base)
+    
     return fig
