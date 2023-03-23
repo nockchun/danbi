@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "danbi"
-version = "0.2.94"
+version = "0.2.99"
 description = "python utility library"
 authors = ["nockchun <nockchun@gmail.com>"]
 license = "Apache-2.0"

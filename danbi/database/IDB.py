@@ -3,6 +3,7 @@ import collections
 import itertools
 from typing import Any, Dict, Tuple, List, Union
 import pandas as pd
+from multiprocessing import Lock
 
 from .IConnectionManager import IConnectionManager
 from ..mapping.IMapper import IMapper
@@ -11,6 +12,15 @@ class IDB(abc.ABC):
     def __new__(self, manager: IConnectionManager, mapper: IMapper):
         self._manager = manager
         self._mapper = mapper
+        self._lock_q = Lock()
+        self._lock_qr = Lock()
+        self._lock_qp = Lock()
+        self._lock_qpr = Lock()
+        self._lock_e = Lock()
+        self._lock_er = Lock()
+        self._lock_em = Lock()
+        self._lock_emr = Lock()
+
         if not hasattr(self, 'instance'):
             self.instance = super(IDB, self).__new__(self)
         return self.instance
