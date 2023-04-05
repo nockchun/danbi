@@ -51,7 +51,7 @@ class IDB(abc.ABC):
         return self._mapper
     
     @abc.abstractmethod
-    def query(self, mapper_name: str, values: Union[dict, tuple] = None) -> list:
+    def query(self, mapper_name: str, values: Union[dict, tuple] = None, print_sql: bool = False) -> list:
         """query with Jinja2Mapper's query key.
 
         Args:
@@ -77,7 +77,7 @@ class IDB(abc.ABC):
         ...
     
     @abc.abstractmethod
-    def queryPandas(self, mapper_name: str, values: Union[dict, tuple] = None, dtype: dict = None) -> pd.DataFrame:
+    def queryPandas(self, mapper_name: str, values: Union[dict, tuple] = None, dtype: dict = None, print_sql: bool = False) -> pd.DataFrame:
         """query with Jinja2Mapper's query key. and the result type change to pandas dataframe.
 
         Args:
@@ -105,7 +105,7 @@ class IDB(abc.ABC):
         ...
     
     @abc.abstractmethod
-    def execute(self, mapper_name: str, values: Union[dict, tuple] = None) -> int:
+    def execute(self, mapper_name: str, values: Union[dict, tuple] = None, print_sql: bool = False) -> int:
         """all sqls without a result table.
 
         Args:
@@ -131,7 +131,7 @@ class IDB(abc.ABC):
         ...
     
     @abc.abstractmethod
-    def executeMany(self, mapper_name: str, values: Union[dict, tuple] = None) -> int:
+    def executeMany(self, mapper_name: str, values: Union[dict, tuple] = None, print_sql: bool = False) -> int:
         """When inserting a lot of data in batches with Jinja2Mapper's query key.
 
         Args:

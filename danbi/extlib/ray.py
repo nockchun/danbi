@@ -48,14 +48,15 @@ class RayActorPool:
         return df.dropna() if dropna else df
 
 
-def rayTaskRun(func_ray: Callable, vals: List, func_callback: Callable = None, chunk: int = None):
+def rayTaskRun(func_ray: Callable, vals: List, func_callback: Callable = None, chunk: int = None, vervos: bool = True):
     if chunk is None:
         chunk = int(psutil.cpu_count() * 0.9)
     
     ray_refs = []
     cnt_total = len(vals)
     for idx, val in enumerate(vals):
-        print(f"{idx+1}/{cnt_total} ({round((idx+1)/cnt_total*100)}%)", end="\r")
+        if vervos:
+            print(f"{idx+1}/{cnt_total} ({round((idx+1)/cnt_total*100)}%)", end="\r")
         if isinstance(val, (list, tuple)):
             ray_refs.append(func_ray.remote(*val))
         else:

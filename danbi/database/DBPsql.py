@@ -3,9 +3,11 @@ import pandas as pd
 from .IDB import IDB
 
 class DBPsql(IDB):
-    def query(self, mapper_name: str, values: Union[dict, tuple] = None) -> list:
+    def query(self, mapper_name: str, values: Union[dict, tuple] = None, print_sql: bool = False) -> list:
         with self._lock_q:
             raw_sql = self._mapper.get(mapper_name, values)
+            if print_sql:
+                print(raw_sql)
             return self.queryRaw(raw_sql, values)
     
     def queryRaw(self, raw_sql: str, values: tuple = None) -> list:
@@ -28,9 +30,11 @@ class DBPsql(IDB):
                 self._manager.releaseConnection(conn)
             raise
     
-    def queryPandas(self, mapper_name: str, values: Union[dict, tuple] = None, dtype: dict = None) -> pd.DataFrame:
+    def queryPandas(self, mapper_name: str, values: Union[dict, tuple] = None, dtype: dict = None, print_sql: bool = False) -> pd.DataFrame:
         with self._lock_qp:
             raw_sql = self._mapper.get(mapper_name, values)
+            if print_sql:
+                print(raw_sql)
             return self.queryPandasRaw(raw_sql, values, dtype)
     
     def queryPandasRaw(self, raw_sql: str, values: Union[dict, tuple] = None, dtype: dict = None) -> pd.DataFrame:
@@ -56,9 +60,11 @@ class DBPsql(IDB):
                 self._manager.releaseConnection(conn)
             raise
     
-    def execute(self, mapper_name, values=None) -> int:
+    def execute(self, mapper_name, values=None, print_sql: bool = False) -> int:
         with self._lock_e:
             raw_sql = self._mapper.get(mapper_name, values)
+            if print_sql:
+                print(raw_sql)
             return self.executeRaw(raw_sql, values)
     
     def executeRaw(self, raw_sql, values=None) -> int:
@@ -81,9 +87,11 @@ class DBPsql(IDB):
                 self._manager.releaseConnection(conn)
             raise
     
-    def executeMany(self, mapper_name, values=None) -> int:
+    def executeMany(self, mapper_name, values=None, print_sql: bool = False) -> int:
         with self._lock_em:
             raw_sql = self._mapper.get(mapper_name, values)
+            if print_sql:
+                print(raw_sql)
             return self.executeManyRaw(raw_sql, values)
     
     def executeManyRaw(self, raw_sql, values=None) -> int:
