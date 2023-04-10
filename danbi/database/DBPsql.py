@@ -11,8 +11,8 @@ class DBPsql(IDB):
             return self.queryRaw(raw_sql, values)
     
     def queryRaw(self, raw_sql: str, values: tuple = None) -> list:
-        try:
-            with self._lock_qr:
+        with self._lock_qr:
+            try:
                 conn = self._manager.getConnection()
                 cursor = conn.cursor()
 
@@ -23,12 +23,12 @@ class DBPsql(IDB):
                 self._manager.releaseConnection(conn)
                 
                 return records
-        except Exception:
-            if cursor is not None:
-                cursor.close()
-            if conn is not None:
-                self._manager.releaseConnection(conn)
-            raise
+            except Exception:
+                if cursor is not None:
+                    cursor.close()
+                if conn is not None:
+                    self._manager.releaseConnection(conn)
+                raise
     
     def queryPandas(self, mapper_name: str, values: Union[dict, tuple] = None, dtype: dict = None, print_sql: bool = False) -> pd.DataFrame:
         with self._lock_qp:
@@ -38,8 +38,8 @@ class DBPsql(IDB):
             return self.queryPandasRaw(raw_sql, values, dtype)
     
     def queryPandasRaw(self, raw_sql: str, values: Union[dict, tuple] = None, dtype: dict = None) -> pd.DataFrame:
-        try:
-            with self._lock_qpr:
+        with self._lock_qpr:
+            try:
                 conn = self._manager.getConnection()
                 cursor = conn.cursor()
 
@@ -53,12 +53,12 @@ class DBPsql(IDB):
                 df = pd.DataFrame(records, columns=columns)
                 
                 return df if dtype is None else df.astype(dtype)
-        except Exception:
-            if cursor is not None:
-                cursor.close()
-            if conn is not None:
-                self._manager.releaseConnection(conn)
-            raise
+            except Exception:
+                if cursor is not None:
+                    cursor.close()
+                if conn is not None:
+                    self._manager.releaseConnection(conn)
+                raise
     
     def execute(self, mapper_name, values=None, print_sql: bool = False) -> int:
         with self._lock_e:
@@ -68,8 +68,8 @@ class DBPsql(IDB):
             return self.executeRaw(raw_sql, values)
     
     def executeRaw(self, raw_sql, values=None) -> int:
-        try:
-            with self._lock_er:
+        with self._lock_er:
+            try:
                 conn = self._manager.getConnection()
                 cursor = conn.cursor()
 
@@ -80,12 +80,12 @@ class DBPsql(IDB):
                 self._manager.releaseConnection(conn)
                 
                 return result
-        except Exception:
-            if cursor is not None:
-                cursor.close()
-            if conn is not None:
-                self._manager.releaseConnection(conn)
-            raise
+            except Exception:
+                if cursor is not None:
+                    cursor.close()
+                if conn is not None:
+                    self._manager.releaseConnection(conn)
+                raise
     
     def executeMany(self, mapper_name, values=None, print_sql: bool = False) -> int:
         with self._lock_em:
@@ -95,8 +95,8 @@ class DBPsql(IDB):
             return self.executeManyRaw(raw_sql, values)
     
     def executeManyRaw(self, raw_sql, values=None) -> int:
-        try:
-            with self._lock_emr:
+        with self._lock_emr:
+            try:
                 conn = self._manager.getConnection()
                 cursor = conn.cursor()
 
@@ -107,9 +107,9 @@ class DBPsql(IDB):
                 self._manager.releaseConnection(conn)
                 
                 return result
-        except Exception:
-            if cursor is not None:
-                cursor.close()
-            if conn is not None:
-                self._manager.releaseConnection(conn)
-            raise
+            except Exception:
+                if cursor is not None:
+                    cursor.close()
+                if conn is not None:
+                    self._manager.releaseConnection(conn)
+                raise
