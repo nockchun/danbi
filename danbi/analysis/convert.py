@@ -47,7 +47,9 @@ def convDfsToContinuousDfs(dfs: List[pd.DataFrame], time_column: str, freq: str)
     point_start = 0
     df_results = []
     for point in points:
-        df_results.append(offsets[point_start:point].merge(df, left_index=True, right_index=True))
+        df = offsets[point_start:point].merge(df, left_index=True, right_index=True)
+        if len(df) > 0:
+            df_results.append(df)
         point_start = point
     df_results.append(offsets[point_start:].merge(df, left_index=True, right_index=True))
 

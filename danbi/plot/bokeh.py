@@ -66,7 +66,10 @@ def getBokehDataSource(df: pd.DataFrame) -> ColumnDataSource:
     return ColumnDataSource(df)
 
 def getBokehFigure(width: int, height: int, title: str):
-    fig = figure(plot_width=width, plot_height=height, title=title, tools=tools, toolbar_location="above")
+    try:
+        fig = figure(plot_width=width, plot_height=height, title=title, tools=tools, toolbar_location="above")
+    except:
+        fig = figure(width=width, height=height, title=title, tools=tools, toolbar_location="above")
     
     return fig
 
@@ -203,7 +206,7 @@ def showPandas(df: pd.DataFrame, xlist: Union[str, List[str]], ylist: List[Tuple
     curdoc().add_root(chart_rows)
     show(chart_rows)
 
-def plotScaled(df, x: str, ylist: List[str], width: int = 1600, height: int = 300, hlines: List[float] = [], vlines: List[float] = [], title: str = "Scaled Timeseries", time: bool = True, scale: bool = True):
+def plotTimeseries(df, x: str, ylist: List[str], width: int = 1600, height: int = 300, hlines: List[float] = [], vlines: List[float] = [], title: str = "Scaled Timeseries", time: bool = True, scale: bool = True):
     df_plot = df[[x] + ylist].copy()
     tooltips = []
     formatters = {"@daytime": "datetime"}

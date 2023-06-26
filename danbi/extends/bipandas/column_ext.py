@@ -66,10 +66,11 @@ class DanbiExtendSeries:
         
         return np.array(updn)
 
-    def updnFuture(self, window: int, rate_up: float = 0.1, rate_dn: float = 0.1) -> List:
+    def updnFuture(self, window: int, rate_up: float = 0.1, rate_dn: float = 0.1, valid_change: int = 3) -> List:
         ups = self._col == self._col.rolling(window).min().shift(-window+1)
         dns = self._col == self._col.rolling(window).max().shift(-window+1)
         updn, term, is_up, is_change, s_val, e_val = [], [], False, False, 0, 0
+        change_period = 1
 
         for up, dn, val in zip(ups, dns, self._col):
             if not np.isnan(val):
@@ -78,7 +79,13 @@ class DanbiExtendSeries:
                 updn += term
                 term, is_change = [], False
                 s_val = val
-            term.append(is_up)
+                change_period = 1
+            else:
+                change_period += 1
+            if change_period >= valid_change:
+                term.append(None)
+            else:
+                term.append(is_up)
 
             if not is_up and up: # dn -> up 으로 변환
                 is_up, is_change = True, True
