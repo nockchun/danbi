@@ -37,9 +37,9 @@ def convDfsToContinuousDfs(dfs: List[pd.DataFrame], time_column: str, freq: str)
     Returns:
         List[pd.DataFrame]: pandas dataframes to ensure time continuity.
     """
-    df = pd.concat(dfs).drop_duplicates().reset_index(drop=True)
+    df = pd.concat(dfs).drop_duplicates().sort_values(by=time_column).reset_index(drop=True)
     delta = pd.Timedelta(freq)
-    offsets = df[[time_column]].drop_duplicates().sort_values(by=time_column).diff()
+    offsets = df[[time_column]].diff()
     offsets.iloc[0, 0] = delta
     points = offsets[offsets[time_column] != delta].index
     offsets = offsets.drop(time_column, axis=1)
@@ -47,9 +47,7 @@ def convDfsToContinuousDfs(dfs: List[pd.DataFrame], time_column: str, freq: str)
     point_start = 0
     df_results = []
     for point in points:
-        df = offsets[point_start:point].merge(df, left_index=True, right_index=True)
-        if len(df) > 0:
-            df_results.append(df)
+        df_results.append(offsets[point_start:point].merge(df, left_index=True, right_index=True))
         point_start = point
     df_results.append(offsets[point_start:].merge(df, left_index=True, right_index=True))
 
