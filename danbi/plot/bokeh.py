@@ -208,11 +208,10 @@ def showPandas(df: pd.DataFrame, xlist: Union[str, List[str]], ylist: List[Tuple
 
 def plotTimeseries(df, x: str, ylist: List[str], width: int = 1600, height: int = 300, hlines: List[float] = [], vlines: List[float] = [], title: str = "Scaled Timeseries", time: bool = True, scale: bool = True):
     df_plot = df[[x] + ylist].copy()
-    tooltips = []
-    formatters = {"@daytime": "datetime"}
+    tooltips = [(x, "@"+x+"{%F}"), ("index", "@index{0,0}")]
+    formatters = {"@"+x: "datetime"}
     if time and not is_datetime64_any_dtype(df_plot[x]):
         df_plot[x] = pd.to_datetime(df_plot[x], utc=True)
-        formatters["@"+x] = "datetime"
     if scale:
         scaler = MinMaxScaler()
         df_plot[ylist] = scaler.fit_transform(df_plot[ylist])

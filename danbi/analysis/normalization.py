@@ -22,96 +22,144 @@ def getMinMaxRows(df: pd.DataFrame, cols: List[str] = None):
 
 
 class ZeroBaseMinMaxScaler():
-    def __init__(self, base_range=(-1, 1)):
-        self._range = base_range
+    def __init__(self, scale: List[float] = [-1.0, 1.0], zero_base: bool = False, zero_add: bool = False, same_scale: bool = False):
+        # assert (zero_base or not same_scale), "Parameter same_scale can be used only when zero_base is True"
+        self._scale = np.array(scale, dtype='float64')
+        self._zero_base = zero_base
+        self._zero_add = zero_add
+        self._same_scale = same_scale
         self._fits = {}
-        self._globals = []
-        self._globals_fit = []
-    
-    def store(self) -> dict:
-        return {
+
+    def store(self, file: str) -> dict:
+        bi.storePickle({
             "range": self._range,
-            "fits": self._fits,
-            "globals": self._globals,
-            "globals_fit": self._globals_fit
-        }
-    
-    def restore(self, stored_dict: dict):
+            "zero_base": self._zero_base,
+            "zero_add": self._zero_add,
+            "same_scale": self._same_scale,
+            "fits": self._fits
+        }, file)
+
+    def restore(self, file: str):
+        stored_dict = bi.restorePickle(file)
         self._range = stored_dict["range"]
+        self._zero_base = stored_dict["zero_base"]
+        self._zero_add = stored_dict["zero_add"]
+        self._separate_scale = stored_dict["separate_scale"]
         self._fits = stored_dict["fits"]
-        self._globals = stored_dict["globals"]
-        self._globals_fit = stored_dict["globals_fit"]
-    
-    def __repr__(self):
-        return str(self._fits)
-    
-    def fit(self, data, field="base", cleave=False):
-        p_idx = np.where(data > 0)
-        n_idx = np.where(data < 0)
-        if cleave:
-            p_max = max(data[p_idx]) if p_idx[0].size > 0 else 1e-9
-            p_min = min(data[p_idx])-1e-10 if p_idx[0].size > 0 else 1e-10
-            n_min = min(data[n_idx]) if n_idx[0].size > 0 else -1e-10
-            n_max = max(data[n_idx])+1e-10 if n_idx[0].size > 0 else -1e-9
+
+    def _check_minmax(self, val: List):
+        if isinstance(val, list):
+            val = np.array(val).astype(np.float64)
+        if self._zero_add:
+            val = np.append(val, 0.0)
+        neg_min = np.nanmin(val)
+        pos_max = np.nanmax(val)
+        pos_min = neg_max = None
+
+        if self._zero_base:
+            if len(val[val >= 0]) > 0:
+                pos_min = np.nanmin(val[val >= 0])
+            else:
+                pos_min = 0
+            if len(val[val <= 0]) > 0:
+                neg_max = np.nanmax(val[val <= 0])
+            else:
+                neg_max = 0
+            if self._same_scale:
+                if np.abs(neg_min) > np.abs(pos_max):
+                    pos_max = neg_min * -1
+                else:
+                    neg_min = pos_max * -1
+                if np.abs(neg_max) > np.abs(pos_min):
+                    pos_min = neg_max * -1
+                else:
+                    neg_max = pos_min * -1
+
+        return neg_min, neg_max, pos_min, pos_max
+
+    def fit(self, val: List, field: str = "base", verbos: bool = False):
+        neg_min, neg_max, pos_min, pos_max = self._check_minmax(val)
+        if verbos:
+            print(f"'{field}' min max [neg_min:{neg_min}, neg_max:{neg_max} | pos_min:{pos_min}, pos_max:{pos_max}]")
+
+        if self._zero_base:
+            neg_b = neg_max
+            neg_w = 0 if (neg_min - neg_b) == 0 else self._scale[0] / (neg_min - neg_b)
+            pos_b = pos_min
+            pos_w = 0 if (pos_max - pos_b) == 0 else self._scale[1] / (pos_max - pos_b)
+            if verbos:
+                print(f"   > zerobase is True [neg_b:{neg_b}, neg_w:{neg_w} | pos_b:{pos_b}, pos_w:{pos_w}]")
+            self._fits[field] = [neg_b, neg_w, pos_b, pos_w]
         else:
-            data_all = np.abs(data[~np.isnan(data)])
-            p_max = max(data_all)
-            p_min = min(data_all)-1e-10
-            n_max = -p_min+1e-10
-            n_min = -p_max
-        
-        self._fits[field] = [
-            self._range[1] / (p_max-p_min),
-            self._range[0] / (n_min-n_max),
-            p_min, n_max
-        ]
-    
-    def fit_frame(self, data, cleave=False, combine_fields=[[]], except_fields=[], include_fields=[]):
-        for column in data.columns:
-            if column in except_fields:
-                continue
-            if (len(include_fields) > 0) and (column not in include_fields):
-                continue
-            if data[column].dtype.kind in ["i", "f"]:
-                is_combine = False
-                for fields in combine_fields:
-                    if column in fields:
-                        self.fit(np.concatenate([data[field].values for field in fields]), column, cleave)
-                        is_combine = True
-                if not is_combine:
-                    self.fit(data[column].values, column, cleave)
-        
-    def transform(self, data, field="base"):
-        # data = data.astype("float32")
-        p_idx = np.where(data > 0)
-        n_idx = np.where(data < 0)
-        p_scale = (data[p_idx] - self._fits[field][2]) * self._fits[field][0]
-        n_scale = (data[n_idx] - self._fits[field][3]) * self._fits[field][1]
-        data[p_idx] = p_scale
-        data[n_idx] = n_scale
-        
-        return data
-    
-    def transform_frame(self, data, postfix=None):
-        for column in self._fits.keys():
-            if column in data.columns:
-                column_new = column if postfix == None else f"{column}_{postfix}"
-                data[column_new] = self.transform(data[column].values, column)
-    
-    def inverse(self, data, field="base"):
-        # data = data.astype("float32")
-        p_idx = np.where(data > 0)
-        n_idx = np.where(data < 0)
-        p_scale = data[p_idx] / self._fits[field][0] + self._fits[field][2]
-        n_scale = data[n_idx] / self._fits[field][1] + self._fits[field][3]
-        data[p_idx] = p_scale
-        data[n_idx] = n_scale
-        
-        return data
-    
-    def inverse_frame(self, data, postfix=None):
-        if isinstance(data, pd.DataFrame):
-            for column in self._fits.keys():
-                if column in data.columns:
-                    column_transform = column if postfix == None else f"{column}_{postfix}"
-                    data[column_transform] = self.inverse(data[column_transform].values, column)
+            b = neg_min
+            w = (self._scale[1] - self._scale[0]) / (pos_max - neg_min)
+            if verbos:
+                print(f"   > zerobase is False [b:{b}, w:{w}]")
+            self._fits[field] = [b, w]
+
+    def transform(self, val, field="base"):
+        if isinstance(val, list):
+            val = np.array(val).astype(np.float64)
+        if self._zero_base:
+            neg_b, neg_w, pos_b, pos_w = self._fits[field]
+
+            val_neg = (val[np.where(val < 0)] - neg_b) * neg_w
+            val_neg[val_neg == 0] = -1e-9
+            val[val < 0] = val_neg
+
+            val_pos = (val[np.where(val > 0)] - pos_b) * pos_w
+            val_pos[val_pos == 0] = 1e-9
+            val[val > 0] = val_pos
+        else:
+            b, w = self._fits[field]
+            val = (val - b) * w + self._scale[0]
+        return val.round(6)
+
+    def inverse(self, val, field="base"):
+        if isinstance(val, list):
+            val = np.array(val).astype(np.float64)
+        if self._zero_base:
+            neg_b, neg_w, pos_b, pos_w = self._fits[field]
+            val[val < 0] = val[np.where(val < 0)] / neg_w + neg_b 
+            val[val > 0] = val[np.where(val > 0)] / pos_w + pos_b
+        else:
+            b, w = self._fits[field]
+            val = (val - self._scale[0]) / w + b
+        return val
+
+    def fitDf(self, df: pd.DataFrame, columns: List[str] = None, groups: List[List[str]] = [[]], verbos=False):
+        if columns is None:
+            columns = df.select_dtypes(include='number').columns.tolist()
+
+        columns = set(columns) - set(sum(groups, []))
+        for column in columns:
+            self.fit(df[column].astype(np.float64).values, column, verbos)
+
+        for group in groups:
+            for idx, item in enumerate(group):
+                if idx == 0:
+                    temp = df[group].astype(np.float64).values
+                    tmp_neg = temp[temp <= 0]
+                    tmp_pos = temp[temp >= 0]
+                    data = np.array([tmp_neg.min(initial=0), tmp_neg.max(initial=0), tmp_pos.min(initial=0), tmp_pos.max(initial=0)])
+                self.fit(data, item, verbos)
+
+    def transformDf(self, df: pd.DataFrame, columns: List[str] = None):
+        if columns is None:
+            columns = df.select_dtypes(include='number').columns.tolist()
+
+        transformed = {}
+        for column in columns:
+            transformed[column] = self.transform(df[column].astype(np.float64).values, column)
+
+        return pd.DataFrame(transformed)
+
+    def inverseDf(self, df: pd.DataFrame, columns: List[str] = None):
+        if columns is None:
+            columns = df.select_dtypes(include='number').columns.tolist()
+
+        transformed = {}
+        for column in columns:
+            transformed[column] = self.inverse(df[column].values, column)
+
+        return pd.DataFrame(transformed)
