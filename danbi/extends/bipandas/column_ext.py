@@ -1,6 +1,6 @@
 import pandas as pd
 import numpy as np
-from typing import Union, List, Callable
+from typing import Union, List, Tuple, Callable
 
 @pd.api.extensions.register_series_accessor("bi")
 class DanbiExtendSeries:
@@ -32,6 +32,14 @@ class DanbiExtendSeries:
                     nan = [np.nan for _ in range(window-1)]
             
             return results + nan if future else nan + results
+
+    def getSigma(self, sigma: int = 3) -> Tuple[float, float]:
+        data = self._col.values
+        mean = np.mean(data)
+        std = np.std(data)
+        threshold = sigma * std
+
+        return (mean - threshold, mean + threshold)
 
     def getStateUpDn(self, window: int, up_rate: float = 1, dn_rate: float = 1, future: bool = False) -> List:
         if future:

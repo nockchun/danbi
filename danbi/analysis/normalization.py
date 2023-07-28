@@ -1,7 +1,7 @@
 from typing import List
 import pandas as pd
 import numpy as np
-
+import danbi as bi
 
 def getMinMaxRows(df: pd.DataFrame, cols: List[str] = None):
     """Extract only min/max rows from each column in pandas dataframe.
