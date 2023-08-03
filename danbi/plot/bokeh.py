@@ -206,7 +206,7 @@ def showPandas(df: pd.DataFrame, xlist: Union[str, List[str]], ylist: List[Tuple
     curdoc().add_root(chart_rows)
     show(chart_rows)
 
-def plotTimeseries(df, x: str, ylist: List[str], width: int = 1600, height: int = 300, hlines: List[float] = [], vlines: List[float] = [], title: str = "Scaled Timeseries", time: bool = True, scale: bool = True):
+def plotTimeseries(df, x: str, ylist: List[str], width: int = 1600, height: int = 300, hlines: List[float] = [], vlines: List[float] = [], title: str = "Scaled Timeseries", time: bool = True, scale: bool = True, legend: Tuple = {}):
     df_plot = df[[x] + ylist].copy()
     tooltips = [(x, "@"+x+"{%F}"), ("index", "@index{0,0}")]
     formatters = {"@"+x: "datetime"}
@@ -219,10 +219,11 @@ def plotTimeseries(df, x: str, ylist: List[str], width: int = 1600, height: int 
     ds = getBokehDataSource(df_plot)
     fig = getBokehFigure(width, height, title)
     for idx, name in enumerate(ylist):
+        legend_label = legend[name] if name in legend else name
         if idx == 0:
-            base = setBokehLine(fig, ds, x, name, COLORSET[idx])
+            base = setBokehLine(fig, ds, x, name, COLORSET[idx], legend_label=legend_label)
         else:
-            setBokehLine(fig, ds, x, name, COLORSET[idx])
+            setBokehLine(fig, ds, x, name, COLORSET[idx], legend_label=legend_label)
         tooltips.append((name, "@"+name+"{0,0[.]00}"))
     
     extend_lines = []

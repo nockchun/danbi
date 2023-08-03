@@ -370,16 +370,18 @@ def plotTimeseriesLines(cds: ColumnDataSource, width: int = 1000, height: int = 
     base_y = options.get("base_y", 0)
     area = options.get("area", [])
     trade_symbol_size = options.get("trade_symbol_size", 12)
+    legend = options.get("legend", {})
     
     COLOR = Category20[20]
     tooltips = []
     fig = figure(plot_width=width, plot_height=height, x_axis_type="datetime", title=title, tools=local_tools, toolbar_location=toolbar_location)
     
     for idx, y in enumerate(ylist):
+        legend_label = legend[y] if y in legend else y
         if idx == 0:
-            base_line = _figLine(fig, x, y,  cds, 1, COLOR[idx], 0.8, y)
+            base_line = _figLine(fig, x, y,  cds, 1, COLOR[idx], 0.8, y, legend_label=legend_label)
         else:
-            _ = _figLine(fig, x, y,  cds, 1, COLOR[idx*2 if idx < 11 else idx*2-1], 0.6 if idx < 11 else 0.8, y)
+            _ = _figLine(fig, x, y,  cds, 1, COLOR[idx*2 if idx < 11 else idx*2-1], 0.6 if idx < 11 else 0.8, y, legend_label=legend_label)
         tooltips.append((y, f"@{y}" + "{,.03f}"))
     fig.renderers.extend([Span(location=base_y, dimension='width', line_color="forestgreen", line_width=0.5)])
     
@@ -388,9 +390,10 @@ def plotTimeseriesLines(cds: ColumnDataSource, width: int = 1000, height: int = 
         fig.add_layout(BoxAnnotation(bottom=area[1], fill_alpha=0.05, fill_color=COLOR[4]))
 
     # Trade
-    if trade and ("env_buy" in cds.data):
-        fig.scatter(x="reg_day", y="env_buy", source=cds, size=trade_symbol_size, color="red", marker="triangle", legend_label="trade buy", muted_alpha=0.05)
-        fig.scatter(x="reg_day", y="env_sell", source=cds, size=trade_symbol_size, color="blue", marker="inverted_triangle", legend_label="trade sell", muted_alpha=0.05)
+    if trade and ("mark_up" in cds.data):
+        fig.scatter(x=x, y="mark_up", source=cds, size=trade_symbol_size, color="red", marker="triangle", legend_label="up", muted_alpha=0.05)
+    if trade and ("mark_dn" in cds.data):
+        fig.scatter(x=x, y="mark_dn", source=cds, size=trade_symbol_size, color="blue", marker="inverted_triangle", legend_label="down", muted_alpha=0.05)
 
     _setStyle(fig)
     fig.add_tools(HoverTool(
