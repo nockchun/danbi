@@ -1,7 +1,7 @@
 import tensorflow as tf
 from tensorflow.io import TFRecordWriter
 import numpy as np
-from typing import List
+from typing import List, Tuple
 from functools import partial
 
 
@@ -29,25 +29,25 @@ def storeTFRecord(file_path: str, datas: np.array, labels: np.array, is_zip: boo
         write(writer, data, label)
 
 
-def tfrecordParseAndDecode(dataset, window_size: int, data_size: int, data_type: tf.dtypes.DType, label_size: int, label_type: tf.dtypes.DType):
+def tfrecordParseAndDecode(dataset, window_size: int,  data_shape: Tuple(int), data_type: tf.dtypes.DType, label_shape: Tuple(int), label_type: tf.dtypes.DType):
     features = tf.io.parse_single_example(dataset, features={
         'data': tf.io.FixedLenFeature([], tf.string),
         'label': tf.io.FixedLenFeature([], tf.string)
     })
     data = tf.io.decode_raw(features["data"], data_type)
-    data = tf.reshape(data, shape=(window_size, data_size))
+    data = tf.reshape(data, shape=data_shape)
     label = tf.io.decode_raw(features["label"], label_type)
-    label = tf.reshape(label, shape=(label_size,))
+    label = tf.reshape(label, shape=label_shape)
     
     return data, label
 
 
-def restoreTFRecord(files: List[str], window_size: int, data_size: int, data_type: tf.dtypes.DType, label_size: int, label_type: tf.dtypes.DType, is_zip: bool = True):
+def restoreTFRecord(files: List[str], window_size: int, data_shape: Tuple(int), data_type: tf.dtypes.DType, label_shape: Tuple(int), label_type: tf.dtypes.DType, is_zip: bool = True):
     if is_zip:
         rds = tf.data.TFRecordDataset(files, "GZIP")
     else:
         rds = tf.data.TFRecordDataset(files)
-    pd_map = partial(tfrecordParseAndDecode, window_size = window_size, data_size = data_size, data_type = data_type, label_size = label_size, label_type = label_type)
+    pd_map = partial(tfrecordParseAndDecode, window_size = window_size, data_shape = data_shape, data_type = data_type, label_shape = label_shape, label_type = label_type)
     rds = rds.map(pd_map)
     
     return rds

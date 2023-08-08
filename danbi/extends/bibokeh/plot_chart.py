@@ -5,14 +5,11 @@ import datetime
 from typing import List, Tuple, Any, Union
 from sklearn.preprocessing import MinMaxScaler
 
-from bokeh.io import output_notebook
-from bokeh.resources import INLINE
-
 from bokeh.models import ColumnDataSource, Range1d, LinearAxis, Span, BoxAnnotation
 from bokeh.models import HoverTool,WheelZoomTool, PanTool, ResetTool, CrosshairTool, BoxSelectTool, BoxZoomTool, SaveTool
 from bokeh.models.formatters import NumeralTickFormatter, DatetimeTickFormatter
-from bokeh.plotting import figure
-
+from bokeh.plotting import figure, output_notebook
+from bokeh.resources import INLINE
 
 tools = [PanTool(), WheelZoomTool(), ResetTool(), CrosshairTool(), BoxSelectTool(), BoxZoomTool(), SaveTool()]
 COLORSET = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf', '#13005A', '#222831', '#3A1078', '#EA8FEA', '#6A2C70', '#5254a3', '#8ca252', '#bd9e39', '#ad494a', '#a55194', '#6baed6', '#fd8d3c', '#74c476', '#9e9ac8', '#969696', '#9c9ede', '#cedb9c', '#e7cb94', '#e7969c', '#de9ed6', '#c6dbef', '#fdd0a2', '#c7e9c0', '#dadaeb', '#d9d9d9', '#1b9e77', '#d95f02', '#7570b3', '#e7298a', '#66a61e', '#e6ab02', '#a6761d', '#666666', '#b3e2cd', '#fdcdac', '#cbd5e8', '#f4cae4', '#e6f5c9', '#fff2ae', '#f1e2cc', '#cccccc', '#8dd3c7', '#ffffb3', '#bebada', '#fb8072', '#80b1d3', '#fdb462', '#b3de69', '#fccde5', '#d9d9d9', '#bc80bd', '#ccebc5', '#ffed6f']

@@ -4,7 +4,7 @@ import datetime
 from typing import List, Tuple, Any, Union
 
 from bokeh.io import curdoc, show
-from bokeh.plotting import figure
+from bokeh.plotting import figure, show, curdoc
 from bokeh.layouts import gridplot, column
 from bokeh.models import ColumnDataSource, HoverTool
 from bokeh.models.formatters import DatetimeTickFormatter
