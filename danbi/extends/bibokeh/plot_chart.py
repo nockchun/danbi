@@ -9,25 +9,24 @@ from bokeh.models import ColumnDataSource, Range1d, LinearAxis, Span, BoxAnnotat
 from bokeh.models import HoverTool,WheelZoomTool, PanTool, ResetTool, CrosshairTool, BoxSelectTool, BoxZoomTool, SaveTool
 from bokeh.models.formatters import NumeralTickFormatter, DatetimeTickFormatter
 from bokeh.plotting import figure, output_notebook
-from bokeh.resources import INLINE
 
-tools = [PanTool(), WheelZoomTool(), ResetTool(), CrosshairTool(), BoxSelectTool(), BoxZoomTool(), SaveTool()]
+tools = [PanTool(), WheelZoomTool(), ResetTool(), CrosshairTool(line_alpha=0.5), BoxSelectTool(), BoxZoomTool(), SaveTool()]
 COLORSET = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf', '#13005A', '#222831', '#3A1078', '#EA8FEA', '#6A2C70', '#5254a3', '#8ca252', '#bd9e39', '#ad494a', '#a55194', '#6baed6', '#fd8d3c', '#74c476', '#9e9ac8', '#969696', '#9c9ede', '#cedb9c', '#e7cb94', '#e7969c', '#de9ed6', '#c6dbef', '#fdd0a2', '#c7e9c0', '#dadaeb', '#d9d9d9', '#1b9e77', '#d95f02', '#7570b3', '#e7298a', '#66a61e', '#e6ab02', '#a6761d', '#666666', '#b3e2cd', '#fdcdac', '#cbd5e8', '#f4cae4', '#e6f5c9', '#fff2ae', '#f1e2cc', '#cccccc', '#8dd3c7', '#ffffb3', '#bebada', '#fb8072', '#80b1d3', '#fdb462', '#b3de69', '#fccde5', '#d9d9d9', '#bc80bd', '#ccebc5', '#ffed6f']
 
 
 def setJupyterEnable():
-    output_notebook(resources=INLINE)
+    output_notebook()
 
 
 def getDataSource(df: pd.DataFrame) -> ColumnDataSource:
     return ColumnDataSource(df)
 
 
-def getFigure(width: int, height: int, title: str):
-    try:
-        fig = figure(plot_width=width, plot_height=height, title=title, tools=tools, toolbar_location="above")
-    except:
-        fig = figure(width=width, height=height, title=title, tools=tools, toolbar_location="above")
+def getFigure(width: int, height: int, title: str, datetime: bool = True, tools: List = tools, toolbar_location: str = "above"):
+    if datetime:
+        fig = figure(width=width, height=height, title=title, tools=tools, toolbar_location=toolbar_location, x_axis_type='datetime')
+    else:
+        fig = figure(width=width, height=height, title=title, tools=tools, toolbar_location=toolbar_location)
     
     return fig
 
@@ -36,7 +35,7 @@ def setFigureStyle(fig: figure, tooltips: List = None, formatters: tuple = None,
     fig.title.text_font_size = options.get("title_font_size", "12pt")
     fig.grid.grid_line_alpha = options.get("grid_line_alpha", 0.5)
     fig.yaxis.formatter = NumeralTickFormatter(format="0,0[.]00")
-    fig.xaxis.formatter = DatetimeTickFormatter(years=["%Y-%m-%d"], months=["%Y-%m-%d"], days=["%Y-%m-%d"])
+    fig.xaxis.formatter = DatetimeTickFormatter(years="%Y-%m", months="%Y-%m", days="%m%d")
 
     fig.legend.border_line_alpha = 0
     fig.legend.background_fill_alpha = 0

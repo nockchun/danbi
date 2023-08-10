@@ -6,7 +6,7 @@ from typing import List, Tuple, Any, Union
 from bokeh.io import curdoc, show
 from bokeh.plotting import figure, show, curdoc
 from bokeh.layouts import gridplot, column
-from bokeh.models import ColumnDataSource, HoverTool
+from bokeh.models import ColumnDataSource, HoverTool, CrosshairTool, Span
 from bokeh.models.formatters import DatetimeTickFormatter
 
 from .plot_chart import tools, COLORSET
@@ -94,9 +94,13 @@ def showPandas(df: pd.DataFrame, xlist: Union[str, List[str]], ylist: Union[str,
     show(chart_rows)
 
 
-def showAsRows(plots: List[figure], sync_axis: str = "xy", width: int = None):
+def showAsRows(plots: List[figure], sync_axis: str = None, width: int = None):
+    wHair = Span(dimension="width", line_dash="dotted", line_width=0.8)
+    hHair = Span(dimension="height", line_dash="dotted", line_width=0.8)
+    
     if sync_axis is not None:
         for plot1 in plots:
+            plot1.add_tools(CrosshairTool(overlay=[wHair, hHair], line_alpha=0.5))
             if width is not None:
                 plot1.width = width
             for plot2 in plots:
@@ -110,7 +114,10 @@ def showAsRows(plots: List[figure], sync_axis: str = "xy", width: int = None):
     show(chart_rows)
 
 
-def showAsGrid(plots: List[List[Union[figure, List[figure]]]], sync_axis: str = "xy"):
+def showAsGrid(plots: List[List[Union[figure, List[figure]]]], sync_axis: str = None, width: int = None):
+    wHair = Span(dimension="width", line_dash="dotted", line_width=0.8)
+    hHair = Span(dimension="height", line_dash="dotted", line_width=0.8)
+    
     if sync_axis is not None:
         plots_flat = []
         for items in sum(plots, []):
@@ -120,6 +127,9 @@ def showAsGrid(plots: List[List[Union[figure, List[figure]]]], sync_axis: str = 
             else:
                 plots_flat.append(items)
         for plot1 in plots_flat:
+            plot1.add_tools(CrosshairTool(overlay=[wHair, hHair], line_alpha=0.3))
+            if width is not None:
+                plot1.width = width
             for plot2 in plots_flat:
                 if "x" in sync_axis:
                     plot1.x_range = plot2.x_range

@@ -29,7 +29,7 @@ def storeTFRecord(file_path: str, datas: np.array, labels: np.array, is_zip: boo
         write(writer, data, label)
 
 
-def tfrecordParseAndDecode(dataset, window_size: int,  data_shape: Tuple(int), data_type: tf.dtypes.DType, label_shape: Tuple(int), label_type: tf.dtypes.DType):
+def tfrecordParseAndDecode(dataset, window_size: int,  data_shape: Tuple[int], data_type: tf.dtypes.DType, label_shape: Tuple[int], label_type: tf.dtypes.DType):
     features = tf.io.parse_single_example(dataset, features={
         'data': tf.io.FixedLenFeature([], tf.string),
         'label': tf.io.FixedLenFeature([], tf.string)
@@ -42,7 +42,7 @@ def tfrecordParseAndDecode(dataset, window_size: int,  data_shape: Tuple(int), d
     return data, label
 
 
-def restoreTFRecord(files: List[str], window_size: int, data_shape: Tuple(int), data_type: tf.dtypes.DType, label_shape: Tuple(int), label_type: tf.dtypes.DType, is_zip: bool = True):
+def restoreTFRecord(files: List[str], window_size: int, data_shape: Tuple[int], data_type: tf.dtypes.DType, label_shape: Tuple[int], label_type: tf.dtypes.DType, is_zip: bool = True):
     if is_zip:
         rds = tf.data.TFRecordDataset(files, "GZIP")
     else:
