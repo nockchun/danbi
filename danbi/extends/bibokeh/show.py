@@ -42,7 +42,7 @@ def showPandas(df: pd.DataFrame, xlist: Union[str, List[str]], ylist: Union[str,
     
     plot_figures = []
     for idx, (xname, ynames) in enumerate(zip(xlist, ylist)):
-        fig = figure(plot_width=width, plot_height=height, title=" & ".join(ynames), tools=local_tools, toolbar_location=toolbar_location)
+        fig = figure(width=width, height=height, title=" & ".join(ynames), tools=local_tools, toolbar_location=toolbar_location)
 
         if isinstance(graph_widths, int):
             graph_widths = [graph_widths for _ in range(len(ynames))]
