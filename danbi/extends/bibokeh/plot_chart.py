@@ -97,6 +97,19 @@ def setAreaBox(fig: figure, color: str, alpha: int = 0.5, top: float = None, bot
     
     return fig
 
+
+def setHVLines(fig, hlines: List[float] = [], vlines: List[float] = [], color: str = "#E90064"):
+    extend_lines = []
+    for hline in hlines:
+        extend_lines.append(Span(location=hline, dimension='width', line_color=color, line_width=0.9, line_alpha=0.6, line_dash='dashed'))
+    for vline in vlines:
+        extend_lines.append(Span(location=vline, dimension='height', line_color=color, line_width=0.9, line_alpha=0.6, line_dash='dashed'))
+
+    fig.renderers.extend(extend_lines)
+    
+    return fig
+
+
 def plotTimeseries(df, x: str, ylist: List[str], width: int = 1600, height: int = 300, hlines: List[float] = [], vlines: List[float] = [], title: str = "Scaled Timeseries", time: bool = True, scale: bool = True, legend: Tuple = {}):
     df_plot = df[[x] + ylist].copy()
     tooltips = [(x, "@"+x+"{%F}"), ("index", "@index{0,0}")]
