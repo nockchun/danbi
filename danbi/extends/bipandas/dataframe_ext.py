@@ -80,6 +80,6 @@ class DanbiExtendFrame:
                 win_label.append(labels[next_label + idx - 1].flatten())
         
         if col_label is None:
-            return np.array(win_data)
+            return np.array(win_data), None
         else:
             return np.array(win_data), np.array(win_label)
