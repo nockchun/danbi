@@ -9,8 +9,9 @@ from .day_time import (
     getWeekday, getYearAnimal
 )
 from .jupyter import (
-    asClassMethod, setWarningOff
+    asClassMethod, setWarningOff, showAsCols
 )
 from .util import (
     storePickle, restorePickle
 )
+from .EduPlot import EduPlotConf, EduPlot2D

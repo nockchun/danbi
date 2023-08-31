@@ -1,1 +1,1 @@
-from .tfrecord_ext import getWriter, write, storeTFRecord, restoreTFRecord
+from .tfrecord_ext import getWriter, storeTFRecord, getTFRecordDecoder, restoreTFRecord
