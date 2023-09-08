@@ -1,51 +1,45 @@
 import abc
+import cv2
+import numpy as np
 import pandas as pd
+from typing import List, Callable
 
-class ITimeseriesToImage(abc.ABC):
-    def __init__(self, df: pd.DataFrame, win: int, height: int = None, width: int = None, backcolor: str = "black", line: float = 1, pad: float = 0.5, dpi: int = 96,
-                 data_type = np.float16, label_type = np.float16, tfrec_file: str = "time2image.tfrec", tfrec_zip: bool = True,
-                 method: str = "summation", n_bins: int = 10, strategy: str = 'quantile', overlapping: bool = False, flatten: bool = False):
-        self._df = df
-        self._win = win
+def genFigureImageArray(fig: plt.figure, width: int = None, height: int = None, channels: str = "r"):
+    fig.canvas.draw()
+    fig_data = np.frombuffer(fig.canvas.tostring_rgb(), dtype=np.uint8)
+    image = fig_data.reshape(fig.canvas.get_width_height()[::-1] + (3,))
+    if width is not None or height is not None:
+        image = cv2.resize(image, (width, height))
+
+    imgarrays = []
+    imgarray = np.array(image)
+    for channel in channels:
+        imgarrays.append(imgarray[:, :, "rgb".index(channel)])
+    imgarray = np.max(imgarrays, axis=0)
+
+    return imgarray * (255 // imgarray.max())
+
+
+class ITimeImage(abc.ABC):
+    def __init__(self, height: int = None, width: int = None):
         self._height = height
         self._width = width
-        if width is None or height is None:
-            figsize = win // 5
-            self._figsize = (win // figsize, win // figsize)
-        else:
-            figsize = height // 5
-            self._figsize = (width // figsize, height // figsize)
+    
+    @abc.abstractclassmethod
+    def setParams(self, **kwargs):
+        ...
+    
+    @abc.abstractclassmethod
+    def getImageChannels(self, data: np.array) -> List[np.array]:
+        ...
 
-        self._winidx = list(range(win))
-        self._backcolor = backcolor
-        self._line = line
-        self._pad = pad
-        self._dpi = dpi
+class TimeDfToImageBuilder():
+    def __init__(self, generators: List[Callable]):
+        self._generators = generators
+    
+    def getImage(self, data: np.array, is_img: bool = True):
+        channels = []
+        for generator in self._generators:
+            channels += generator.getImageChannels(data)
         
-        self._tfrec_data_type = data_type
-        self._tfrec_label_type = label_type
-        self._tfrec_zip = tfrec_zip
-        self._tfrec_file = tfrec_file
-
-        self._gaf = GramianAngularField(image_size=self._win, sample_range=None, method=method, overlapping=overlapping, flatten=flatten)
-        self._mtf = MarkovTransitionField(image_size=self._win, n_bins=n_bins, strategy=strategy, overlapping=overlapping, flatten=flatten)
-
-    @abc.abstractclassmethod
-    def connect(self, **kwargs):
-        ...
-    
-    @abc.abstractclassmethod
-    def isConnect(self) -> bool:
-        ...
-
-    @abc.abstractclassmethod
-    def close(self, **kwargs):
-        ...
-    
-    @abc.abstractclassmethod
-    def getConnection(self, auto_commit=True, **kwargs):
-        ...
-    
-    @abc.abstractclassmethod
-    def releaseConnection(self, conn):
-        ...
+        return np.stack(channels, axis=-1) if is_img else channels
