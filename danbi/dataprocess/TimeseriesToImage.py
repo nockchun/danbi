@@ -26,9 +26,6 @@ class ITimeImage(abc.ABC):
         self._height = height
         self._width = width
     
-    def _genFigureImageArray(fig: plt.figure, width: int = None, height: int = None, channels: str = "r"):
-        return genFigureImageArray(fig, width, height, channels)
-    
     @abc.abstractclassmethod
     def setParams(self, **kwargs):
         ...
