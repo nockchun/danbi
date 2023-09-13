@@ -10,9 +10,7 @@ def getWriter(file_path: str, is_zip: bool = True) -> tf.io.TFRecordWriter:
     else:
         return tf.io.TFRecordWriter(file_path)
 
-def storeTFRecord(file_path: str, datas: Dict[str, np.array], is_zip: bool = True):
-    writer = getWriter(file_path, is_zip)
-    
+def storeTFRecord(writer: Callable, datas: Dict[str, np.array], is_zip: bool = True):
     for data in zip(*datas.values()):
         feature = {}
         for idx, name in enumerate(datas.keys()):

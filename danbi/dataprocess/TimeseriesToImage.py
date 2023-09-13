@@ -2,6 +2,7 @@ import abc
 import cv2
 import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt
 from typing import List, Callable
 
 def genFigureImageArray(fig: plt.figure, width: int = None, height: int = None, channels: str = "r"):
@@ -33,8 +34,8 @@ class ITimeImage(abc.ABC):
     def getImageChannels(self, data: np.array) -> List[np.array]:
         ...
 
-class TimeDfToImageBuilder():
-    def __init__(self, generators: List[Callable]):
+class TimeToImageBuilder():
+    def __init__(self, generators: List[ITimeImage]):
         self._generators = generators
     
     def getImage(self, data: np.array, is_img: bool = True):
