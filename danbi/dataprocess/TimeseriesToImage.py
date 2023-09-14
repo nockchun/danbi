@@ -4,6 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from typing import List, Callable
 
+
 def genFigureImageArray(fig: plt.figure, width: int = None, height: int = None, channels: str = "r"):
     fig.canvas.draw()
     fig_data = np.frombuffer(fig.canvas.tostring_rgb(), dtype=np.uint8)
@@ -19,10 +20,11 @@ def genFigureImageArray(fig: plt.figure, width: int = None, height: int = None, 
 
     return imgarray * (255 // imgarray.max())
 
+
 class ITimeEncoder(abc.ABC):
-    def __init__(self, height: int = None, width: int = None):
-        self._height = height
-        self._width = width
+    def __init__(self, slice_start: int = None, slice_end: int = None):
+        self._slice_start = slice_start
+        self._slice_end = slice_end
     
     @abc.abstractclassmethod
     def setParams(self, **kwargs):
@@ -31,6 +33,7 @@ class ITimeEncoder(abc.ABC):
     @abc.abstractclassmethod
     def getEncoded(self, data: np.array) -> List[np.array]:
         ...
+
 
 class TimeEncodingBuilder():
     def __init__(self, encoders: List[ITimeEncoder]):
@@ -42,3 +45,4 @@ class TimeEncodingBuilder():
             encoded += encoder.getEncoded(data)
         
         return encoded if tolist else np.stack(encoded, axis=-1)
+
