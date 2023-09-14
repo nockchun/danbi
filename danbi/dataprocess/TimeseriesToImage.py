@@ -1,7 +1,6 @@
 import abc
 import cv2
 import numpy as np
-import pandas as pd
 import matplotlib.pyplot as plt
 from typing import List, Callable
 
@@ -20,8 +19,7 @@ def genFigureImageArray(fig: plt.figure, width: int = None, height: int = None, 
 
     return imgarray * (255 // imgarray.max())
 
-
-class ITimeImage(abc.ABC):
+class ITimeEncoder(abc.ABC):
     def __init__(self, height: int = None, width: int = None):
         self._height = height
         self._width = width
@@ -31,16 +29,16 @@ class ITimeImage(abc.ABC):
         ...
     
     @abc.abstractclassmethod
-    def getImageChannels(self, data: np.array) -> List[np.array]:
+    def getEncoded(self, data: np.array) -> List[np.array]:
         ...
 
-class TimeToImageBuilder():
-    def __init__(self, generators: List[ITimeImage]):
-        self._generators = generators
+class TimeEncodingBuilder():
+    def __init__(self, encoders: List[ITimeEncoder]):
+        self._encoders = encoders
     
-    def getImage(self, data: np.array, is_img: bool = True):
-        channels = []
-        for generator in self._generators:
-            channels += generator.getImageChannels(data)
+    def getImage(self, data: np.array, tolist: bool = False):
+        encoded = []
+        for encoder in self._encoders:
+            encoded += encoder.getEncoded(data)
         
-        return np.stack(channels, axis=-1) if is_img else channels
+        return encoded if tolist else np.stack(encoded, axis=-1)

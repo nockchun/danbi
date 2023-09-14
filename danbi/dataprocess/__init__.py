@@ -1,2 +1,2 @@
 from .ZeroBaseMinMaxScaler import ZeroBaseMinMaxScaler
-from .TimeseriesToImage import genFigureImageArray, ITimeImage, TimeToImageBuilder
+from .TimeseriesToImage import genFigureImageArray, ITimeEncoder, TimeEncodingBuilder
