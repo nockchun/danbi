@@ -66,7 +66,7 @@ class DanbiExtendFrame:
         idx = int(len(self._obj) * rate)
         return self._obj[:idx].reset_index(drop=True), self._obj[idx:].reset_index(drop=True)
     
-    def getTimeseries(self, win: int, col_data: List[str], col_label: List[str] = None, next_label: List[int] = [1]) -> Tuple[np.array, np.array]:
+    def getTimeseries(self, win: int, col_data: List[str], col_label: List[str] = None, next_label: List[int] = [1], step: int = 1) -> Tuple[np.array, np.array]:
         win_data = []
         win_label = []
         next_label = np.array(next_label)
@@ -75,6 +75,8 @@ class DanbiExtendFrame:
         if col_label is not None:
             labels = self._obj[col_label].values
         for idx in range(win, len(datas) - next_label[-1] + 1):
+            if idx % step != 0:
+                continue
             win_data.append(datas[idx-win:idx])
             if col_label is not None:
                 win_label.append(labels[next_label + idx - 1].flatten())

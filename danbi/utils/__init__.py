@@ -14,4 +14,7 @@ from .jupyter import (
 from .util import (
     storePickle, restorePickle
 )
+from .with_print import (
+    WithNumpyPrint
+)
 from .EduPlot import EduPlotConf, EduPlot2D
