@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 
 class WithNumpyPrint:
     def __init__(self, precision: int = 3):
@@ -12,3 +13,25 @@ class WithNumpyPrint:
 
     def __exit__(self, exc_type, exc_value, traceback):
         np.set_printoptions(**self.original_options)
+
+class WithPandasPrint:
+    def __init__(self, precision=5, width=0, rows=None):
+        self._width = width
+        self._precision = precision
+        self._rows = rows
+        self._origins = {}
+
+    def __enter__(self):
+        self._origins["width"] = pd.get_option("display.width")
+        pd.set_option("display.width", self._width)
+        
+        self._origins["precision"] = pd.get_option("display.precision")
+        pd.set_option("display.precision", self._precision)
+
+        self._origins["rows"] = pd.get_option("display.max_rows")
+        pd.set_option("display.max_rows", self._rows)
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        pd.set_option("display.width", self._origins["width"])
+        pd.set_option("display.precision", self._origins["precision"])
+        pd.set_option("display.max_rows", self._origins["rows"])
