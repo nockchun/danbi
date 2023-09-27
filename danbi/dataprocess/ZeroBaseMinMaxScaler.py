@@ -10,6 +10,7 @@ class ZeroBaseMinMaxScaler():
         self._zero_base = zero_base
         self._zero_add = zero_add
         self._same_scale = same_scale
+        self._df_columns = None
         self._fits = {}
 
     def store(self, file: str) -> dict:
@@ -18,6 +19,7 @@ class ZeroBaseMinMaxScaler():
             "zero_base": self._zero_base,
             "zero_add": self._zero_add,
             "same_scale": self._same_scale,
+            "df_columns": self._df_columns
             "fits": self._fits
         }, file)
 
@@ -27,6 +29,7 @@ class ZeroBaseMinMaxScaler():
         self._zero_base = stored_dict["zero_base"]
         self._zero_add = stored_dict["zero_add"]
         self._separate_scale = stored_dict["separate_scale"]
+        self._df_columns = stored_dict["df_columns"]
         self._fits = stored_dict["fits"]
 
     def _check_minmax(self, val: List):
@@ -112,6 +115,7 @@ class ZeroBaseMinMaxScaler():
     def fitDf(self, df: pd.DataFrame, columns: List[str] = None, groups: List[List[str]] = [[]], verbos=False):
         if columns is None:
             columns = df.select_dtypes(include='number').columns.tolist()
+        self._df_columns = columns
 
         columns = set(columns) - set(sum(groups, []))
         for column in columns:
@@ -128,7 +132,7 @@ class ZeroBaseMinMaxScaler():
 
     def transformDf(self, df: pd.DataFrame, columns: List[str] = None):
         if columns is None:
-            columns = df.select_dtypes(include='number').columns.tolist()
+            columns = df.select_dtypes(include='number').columns.tolist() if self._df_columns is None else self._df_columns
 
         transformed = {}
         for column in columns:
