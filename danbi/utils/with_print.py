@@ -15,23 +15,28 @@ class WithNumpyPrint:
         np.set_printoptions(**self.original_options)
 
 class WithPandasPrint:
-    def __init__(self, precision: int = 3, width: int = 0, rows: int = None):
+    def __init__(self, precision=5, width=0, rows=None, colums=None):
         self._width = width
-        self._precision = ("{:." + str(precision) + "f}").format
+        self._precision = precision
         self._rows = rows
+        self._colums = colums
         self._origins = {}
 
     def __enter__(self):
         self._origins["width"] = pd.get_option("display.width")
         pd.set_option("display.width", self._width)
         
-        self._origins["precision"] = pd.get_option("display.float_format")
-        pd.set_option("display.float_format", self._precision)
+        self._origins["precision"] = pd.get_option("display.precision")
+        pd.set_option("display.precision", self._precision)
 
         self._origins["rows"] = pd.get_option("display.max_rows")
         pd.set_option("display.max_rows", self._rows)
 
+        self._origins["columns"] = pd.get_option("display.max_columns")~
+        pd.set_option("display.max_columns", self._columns)
+
     def __exit__(self, exc_type, exc_value, traceback):
         pd.set_option("display.width", self._origins["width"])
-        pd.set_option("display.float_format", self._origins["precision"])
+        pd.set_option("display.precision", self._origins["precision"])
         pd.set_option("display.max_rows", self._origins["rows"])
+        pd.set_option("display.max_columns", self._origins["columns"])
