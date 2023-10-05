@@ -32,7 +32,7 @@ class WithPandasPrint:
         self._origins["rows"] = pd.get_option("display.max_rows")
         pd.set_option("display.max_rows", self._rows)
 
-        self._origins["columns"] = pd.get_option("display.max_columns")~
+        self._origins["columns"] = pd.get_option("display.max_columns")
         pd.set_option("display.max_columns", self._columns)
 
     def __exit__(self, exc_type, exc_value, traceback):
