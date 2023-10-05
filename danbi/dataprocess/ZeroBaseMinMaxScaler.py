@@ -19,7 +19,7 @@ class ZeroBaseMinMaxScaler():
             "zero_base": self._zero_base,
             "zero_add": self._zero_add,
             "same_scale": self._same_scale,
-            "df_columns": self._df_columns
+            "df_columns": self._df_columns,
             "fits": self._fits
         }, file)
 
@@ -130,15 +130,20 @@ class ZeroBaseMinMaxScaler():
                     data = np.array([tmp_neg.min(initial=0), tmp_neg.max(initial=0), tmp_pos.min(initial=0), tmp_pos.max(initial=0)])
                 self.fit(data, item, verbos)
 
-    def transformDf(self, df: pd.DataFrame, columns: List[str] = None):
+    def transformDf(self, df: pd.DataFrame, columns: List[str] = None, inplace: bool = False):
         if columns is None:
             columns = df.select_dtypes(include='number').columns.tolist() if self._df_columns is None else self._df_columns
 
         transformed = {}
         for column in columns:
-            transformed[column] = self.transform(df[column].astype(np.float64).values, column)
-
-        return pd.DataFrame(transformed)
+            trans = self.transform(df[column].astype(np.float64).values, column)
+            if inplace:
+                df[column] = trans
+            else:
+                transformed[column] = trans
+        
+        if inplace is False:
+            return pd.DataFrame(transformed)
 
     def inverseDf(self, df: pd.DataFrame, columns: List[str] = None):
         if columns is None:

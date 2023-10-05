@@ -15,9 +15,9 @@ class WithNumpyPrint:
         np.set_printoptions(**self.original_options)
 
 class WithPandasPrint:
-    def __init__(self, precision=5, width=0, rows=None):
+    def __init__(self, precision: int = 3, width: int = 0, rows: int = None):
         self._width = width
-        self._precision = precision
+        self._precision = ("{:." + str(precision) + "f}").format
         self._rows = rows
         self._origins = {}
 
@@ -25,13 +25,13 @@ class WithPandasPrint:
         self._origins["width"] = pd.get_option("display.width")
         pd.set_option("display.width", self._width)
         
-        self._origins["precision"] = pd.get_option("display.precision")
-        pd.set_option("display.precision", self._precision)
+        self._origins["precision"] = pd.get_option("display.float_format")
+        pd.set_option("display.float_format", self._precision)
 
         self._origins["rows"] = pd.get_option("display.max_rows")
         pd.set_option("display.max_rows", self._rows)
 
     def __exit__(self, exc_type, exc_value, traceback):
         pd.set_option("display.width", self._origins["width"])
-        pd.set_option("display.precision", self._origins["precision"])
+        pd.set_option("display.float_format", self._origins["precision"])
         pd.set_option("display.max_rows", self._origins["rows"])
