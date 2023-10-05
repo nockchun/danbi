@@ -15,11 +15,11 @@ class WithNumpyPrint:
         np.set_printoptions(**self.original_options)
 
 class WithPandasPrint:
-    def __init__(self, precision=5, width=0, rows=None, colums=None):
+    def __init__(self, precision=5, width=0, rows=None, columns=None):
         self._width = width
         self._precision = precision
         self._rows = rows
-        self._colums = colums
+        self._columns = columns
         self._origins = {}
 
     def __enter__(self):
