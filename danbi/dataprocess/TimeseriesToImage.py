@@ -38,6 +38,7 @@ class ITimeEncoder(abc.ABC):
 class TimeEncodingBuilder():
     def __init__(self, encoders: List[ITimeEncoder]):
         self._encoders = encoders
+        self._encoded = []
     
     def getImage(self, data: np.array, tolist: bool = False):
         encoded = []
@@ -45,4 +46,11 @@ class TimeEncodingBuilder():
             encoded += encoder.getEncoded(data)
         
         return encoded if tolist else np.stack(encoded, axis=-1)
+    
+    def getEncoded(self, data: np.array, tolist: bool = False):
+        encoded = []
+        for encoder in self._encoders:
+            encoded += encoder.getEncoded(data)
+
+        return encoded if tolist else np.concatenate(encoded)
 
