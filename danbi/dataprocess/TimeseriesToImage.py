@@ -46,7 +46,7 @@ class TimeEncodingBuilder():
         
         return encoded if tolist else np.stack(encoded, axis=-1)
     
-    def getEncoded(self, data: np.array, tolist: bool = False):
+    def getTimeseries(self, data: np.array, tolist: bool = False):
         encoded = []
         for encoder in self._encoders:
             encoded += encoder.getEncoded(data)
