@@ -1,1 +1,1 @@
-from .ray import RayActorPool, rayTaskRun
+from .ray import ActorPool, runTasks
