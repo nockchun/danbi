@@ -26,10 +26,11 @@ class DanbiExtendFrame:
                 results.append(func(df))
             
             if len(results) > 0:
-                if len(results[0]) > 1:
+                if type(results[0]) in (list, tuple) and len(results[0]) > 1:
                     nan = [[np.nan for _ in range(len(results[0]))] for _ in range(win-1)]
                 else:
                     nan = [np.nan for _ in range(win-1)]
+                
             
             return results + nan if future else nan + results
 
