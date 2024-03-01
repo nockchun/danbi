@@ -136,11 +136,12 @@ class ZeroBaseMinMaxScaler():
 
         transformed = {}
         for column in columns:
-            trans = self.transform(df[column].astype(np.float64).values, column)
-            if inplace:
-                df[column] = trans
-            else:
-                transformed[column] = trans
+            if column in df:
+                trans = self.transform(df[column].astype(np.float64).values, column)
+                if inplace:
+                    df[column] = trans
+                else:
+                    transformed[column] = trans
         
         if inplace is False:
             return pd.DataFrame(transformed)
