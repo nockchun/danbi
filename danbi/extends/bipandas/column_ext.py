@@ -33,7 +33,7 @@ class DanbiExtendSeries:
             
             return results + nan if future else nan + results
 
-    def getSigma(self, sigma: int = 3, as_int: bool = False) -> Tuple[float, float, float, float, float, float]:
+    def sigma(self, sigma: int = 3, as_int: bool = False) -> Tuple[float, float, float, float, float, float]:
         data = self._col.values
         mean = np.nanmean(data)
         std = np.nanstd(data)
@@ -51,8 +51,16 @@ class DanbiExtendSeries:
             percent = int(percent)
 
         return (lower, mean, upper, std, threshold, percent)
+    
+    def forceDirection(self, window: int = 5, smooth: int = 1, sigma: int = 3):
+        assert smooth > 0, "smooth > 0"
 
-    def getStateUpDn(self, window: int, up_rate: float = 1, dn_rate: float = 1, future: bool = False) -> List:
+        diff_sum = self._col.diff().rolling(window).sum()
+        threshold = diff_sum.bi.sigma(sigma, True)[4]
+
+        return (diff_sum / threshold).rolling(smooth).mean().clip(-1, 1)
+
+    def stateUpDn(self, window: int, up_rate: float = 1, dn_rate: float = 1, future: bool = False) -> List:
         if future:
             ups = self._col == self._col.rolling(window).min().shift(-window+1)
             dns = self._col == self._col.rolling(window).max().shift(-window+1)
