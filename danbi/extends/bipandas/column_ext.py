@@ -33,7 +33,7 @@ class DanbiExtendSeries:
             
             return results + nan if future else nan + results
 
-    def getSigma(self, sigma: int = 3, as_int: bool = False) -> Tuple[float, float, float, float]:
+    def getSigma(self, sigma: int = 3, as_int: bool = False) -> Tuple[float, float, float, float, float, float]:
         data = self._col.values
         mean = np.nanmean(data)
         std = np.nanstd(data)
@@ -46,9 +46,11 @@ class DanbiExtendSeries:
             lower = int(lower)
             mean = int(mean)
             upper = int(upper)
+            std = int(std)
+            threshold = int(threshold)
             percent = int(percent)
 
-        return (lower, mean, upper, percent)
+        return (lower, mean, upper, std, threshold, percent)
 
     def getStateUpDn(self, window: int, up_rate: float = 1, dn_rate: float = 1, future: bool = False) -> List:
         if future:
