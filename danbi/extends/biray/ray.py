@@ -56,7 +56,7 @@ def runTasks(func_ray: Callable, vals: List, func_callback: Callable = None, chu
     cnt_total = len(vals)
     for idx, val in enumerate(vals):
         if vervos:
-            print(f"{idx+1}/{cnt_total} ({round((idx+1)/cnt_total*100)}%)", end="\r")
+            print(f"{idx+1}/{cnt_total} ({round((idx+1)/cnt_total*100)}%) {len(ray_refs)} {' '*20}", end="\r")
         if isinstance(val, (list, tuple)):
             ray_refs.append(func_ray.remote(*val))
         else:
@@ -64,7 +64,7 @@ def runTasks(func_ray: Callable, vals: List, func_callback: Callable = None, chu
         if idx % chunk == 0:
             while len(ray_refs) > int(chunk * 0.5):
                 done_id, ray_refs = ray.wait(ray_refs)
-                if func_callback:
+                if func_callback is not None:
                     func_callback(*ray.get(done_id)[0])
     while len(ray_refs):
         done_id, ray_refs = ray.wait(ray_refs)

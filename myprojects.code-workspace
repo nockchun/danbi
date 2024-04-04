@@ -1,0 +1,20 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "../rsnet"
+		},
+		{
+			"path": "../stofacker"
+		},
+		{
+			"path": "../trading-sim-gym"
+		},
+		{
+			"path": "../TradingSimGym"
+		}
+	],
+	"settings": {}
+}
