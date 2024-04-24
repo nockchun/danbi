@@ -50,13 +50,13 @@ class DanbiExtendSeries:
             threshold = int(threshold)
             percent = int(percent)
 
-        return (lower, mean, upper, std, threshold, percent)
+        return {"lower": lower, "mean": mean, "upper": upper, "std": std, "threshold": threshold, "percent": percent}
     
     def forceDirection(self, window: int = 5, smooth: int = 1, sigma: int = 3):
         assert smooth > 0, "smooth > 0"
 
         diff_sum = self._col.diff().rolling(window).sum()
-        threshold = diff_sum.bi.sigma(sigma, True)[4]
+        threshold = diff_sum.bi.sigma(sigma, False)["threshold"]
 
         return (diff_sum / threshold).rolling(smooth).mean().clip(-1, 1)
 

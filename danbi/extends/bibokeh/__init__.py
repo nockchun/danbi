@@ -1,7 +1,7 @@
 from .plot_chart import (
     setJupyterEnable,
     getDataSource, getFigure, setFigureStyle,
-    setLine, setMarke, setAreaBox, setHVLines,
+    setLine, setBar, setMarke, setAreaBox, setHVLines,
     plotTimeseries
 )
 

@@ -80,6 +80,18 @@ def setLine(fig: figure, src: Union[ColumnDataSource, pd.DataFrame], x: str, y: 
     return line
 
 
+def setBar(fig: figure, src: Union[ColumnDataSource, pd.DataFrame], x: str, y: str, color: str, width: int = 1.2, legend_label: str = None, alpha: int = 0.7, muted_alpha: int = 0.05):
+    if isinstance(src, pd.DataFrame):
+        src = ColumnDataSource(src)
+    
+    if legend_label is None:
+        legend_label = y
+    
+    bar = fig.vbar(source=src, x=x, top=y, color=color, line_width=width, legend_label=legend_label, alpha=alpha, muted_alpha=muted_alpha)
+    
+    return bar
+
+
 def setMarke(fig: figure, src: Union[ColumnDataSource, pd.DataFrame], x: str, y: str, color: str, size: int = 10, marker: str = "triangle", legend_label: str = None, alpha: int = 0.5, muted_alpha: int = 0.05):
     if isinstance(src, pd.DataFrame):
         src = ColumnDataSource(src)
