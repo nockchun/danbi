@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+from scipy.signal import butter, filtfilt
 from typing import Union, List, Tuple, Callable
 
 @pd.api.extensions.register_series_accessor("bi")
@@ -51,6 +52,16 @@ class DanbiExtendSeries:
             percent = int(percent)
 
         return {"lower": lower, "mean": mean, "upper": upper, "std": std, "threshold": threshold, "percent": percent}
+    
+    def lpf(self, cutoff: float = 0.1, fs: float = 1.0, order=5):
+        data = self._col.values
+
+        nyquist = 0.5 * fs
+        normal_cutoff = cutoff / nyquist
+        b, a = butter(order, normal_cutoff, btype='low', analog=False)
+        y = filtfilt(b, a, data)
+
+        return y
     
     def forceDirection(self, window: int = 5, smooth: int = 1, sigma: int = 3):
         assert smooth > 0, "smooth > 0"
