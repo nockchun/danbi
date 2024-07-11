@@ -12,25 +12,31 @@ class ZeroBaseMinMaxScaler():
         self._same_scale = same_scale
         self._df_columns = None
         self._fits = {}
-
-    def store(self, file: str) -> dict:
-        bi.storePickle({
-            "range": self._range,
+    
+    def store(self) -> dict:
+        return {
+            "scale": self._scale,
             "zero_base": self._zero_base,
             "zero_add": self._zero_add,
             "same_scale": self._same_scale,
             "df_columns": self._df_columns,
             "fits": self._fits
-        }, file)
+        }
 
-    def restore(self, file: str):
+    def storeFile(self, file: str) -> dict:
+        bi.storePickle(self.store(), file)
+    
+    def restore(self, states):
+        self._scale = states["scale"]
+        self._zero_base = states["zero_base"]
+        self._zero_add = states["zero_add"]
+        self._same_scale = states["same_scale"]
+        self._df_columns = states["df_columns"]
+        self._fits = states["fits"]
+
+    def restoreFile(self, file: str):
         stored_dict = bi.restorePickle(file)
-        self._range = stored_dict["range"]
-        self._zero_base = stored_dict["zero_base"]
-        self._zero_add = stored_dict["zero_add"]
-        self._separate_scale = stored_dict["separate_scale"]
-        self._df_columns = stored_dict["df_columns"]
-        self._fits = stored_dict["fits"]
+        self.restore(stored_dict)
 
     def _check_minmax(self, val: List):
         if isinstance(val, list):

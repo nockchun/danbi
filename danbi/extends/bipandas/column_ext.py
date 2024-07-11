@@ -63,13 +63,16 @@ class DanbiExtendSeries:
 
         return y
     
-    def forceDirection(self, window: int = 5, smooth: int = 1, sigma: int = 3):
-        assert smooth > 0, "smooth > 0"
+    def forceDirection(self, period: int = 1, sigma: Union[int, float, dict] = 1, zero_rate: float = 0.0):
+        diff = self._col.diff(period)
+        if isinstance(sigma, (int, float)):
+            sigma = diff.bi.sigma(sigma)
+        direction = (diff / sigma["upper"]).clip(-1, 1).fillna(0)
 
-        diff_sum = self._col.diff().rolling(window).sum()
-        threshold = diff_sum.bi.sigma(sigma, False)["threshold"]
+        zero_bound = zero_rate / 100
+        direction = direction.mask((direction >= -zero_bound) & (direction <= zero_bound), 0.0)
 
-        return (diff_sum / threshold).rolling(smooth).mean().clip(-1, 1)
+        return direction
 
     def stateUpDn(self, window: int, up_rate: float = 1, dn_rate: float = 1, future: bool = False) -> List:
         if future:
