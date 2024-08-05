@@ -36,6 +36,8 @@ class DanbiExtendSeries:
 
     def sigma(self, sigma: int = 3, as_int: bool = False) -> Tuple[float, float, float, float, float, float]:
         data = self._col.values
+        val_max = max(data)
+        val_min = min(data)
         mean = np.nanmean(data)
         std = np.nanstd(data)
         threshold = sigma * std
@@ -51,7 +53,7 @@ class DanbiExtendSeries:
             threshold = int(threshold)
             percent = int(percent)
 
-        return {"lower": lower, "mean": mean, "upper": upper, "std": std, "threshold": threshold, "percent": percent}
+        return {"max": val_max, "min": val_min, "lower": lower, "mean": mean, "upper": upper, "std": std, "threshold": threshold, "percent": percent}
     
     def lpf(self, cutoff: float = 0.1, fs: float = 1.0, order=5):
         data = self._col.values

@@ -2,4 +2,4 @@ from .mapping import *
 from .plugable import *
 from .utils import *
 
-__version__ = '0.2.203'
+__version__ = '0.2.204'
