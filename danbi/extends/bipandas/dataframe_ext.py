@@ -8,7 +8,7 @@ class DanbiExtendFrame:
         self._obj = pandas_obj
         self._len = len(pandas_obj)
 
-    def rollapply(self, win: int, func: Callable, test: int = 0, future: bool = False):
+    def rollapply(self, win: int, func: Callable, test: int = 0, future: bool = False, val_nan=np.nan):
         results = []
         if test > 0:
             for idx, df in enumerate(self._obj.rolling(win)):
@@ -27,9 +27,9 @@ class DanbiExtendFrame:
             
             if len(results) > 0:
                 if type(results[0]) in (list, tuple) and len(results[0]) > 1:
-                    nan = [[np.nan for _ in range(len(results[0]))] for _ in range(win-1)]
+                    nan = [[val_nan for _ in range(len(results[0]))] for _ in range(win-1)]
                 else:
-                    nan = [np.nan for _ in range(win-1)]
+                    nan = [val_nan for _ in range(win-1)]
                 
             
             return results + nan if future else nan + results

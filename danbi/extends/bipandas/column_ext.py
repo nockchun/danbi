@@ -9,7 +9,7 @@ class DanbiExtendSeries:
         self._col = column
         self._len = len(column)
 
-    def rollapply(self, window: int, func: Callable, test: int = 0, future: bool = False):
+    def rollapply(self, window: int, func: Callable, test: int = 0, future: bool = False, val_nan=np.nan):
         results = []
         if test > 0:
             for idx, df in enumerate(self._col.rolling(window)):
@@ -28,9 +28,9 @@ class DanbiExtendSeries:
             
             if len(results) > 0:
                 if isinstance(results[0], tuple):
-                    nan = [[np.nan for _ in range(len(results[0]))] for _ in range(window-1)]
+                    nan = [[val_nan for _ in range(len(results[0]))] for _ in range(window-1)]
                 else:
-                    nan = [np.nan for _ in range(window-1)]
+                    nan = [val_nan for _ in range(window-1)]
             
             return results + nan if future else nan + results
 
