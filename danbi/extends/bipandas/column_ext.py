@@ -34,16 +34,21 @@ class DanbiExtendSeries:
             
             return results + nan if future else nan + results
 
-    def sigma(self, sigma: int = 3, as_int: bool = False) -> Tuple[float, float, float, float, float, float]:
+    def sigma(self, sigma: int = 3, quantile=0.1, as_int: bool = False) -> Tuple[float, float, float, float, float, float]:
         data = self._col.values
         val_max = max(data)
         val_min = min(data)
         mean = np.nanmean(data)
         std = np.nanstd(data)
         threshold = sigma * std
-        lower = mean - threshold
-        upper = mean + threshold
-        percent = np.sum((data >= lower) & (data <= upper)) / data.size * 100
+
+        sigma_lower = mean - threshold
+        sigma_upper = mean + threshold
+        sigma_percent = np.sum((data >= sigma_lower) & (data <= sigma_upper)) / data.size * 100
+
+        quantile_lower = self._col.quantile(quantile)
+        quantile_upper = self._col.quantile(1 - quantile)
+        quantile_percent = np.sum((data >= quantile_lower) & (data <= quantile_upper)) / data.size * 100
 
         if as_int:
             lower = int(lower)
@@ -51,9 +56,22 @@ class DanbiExtendSeries:
             upper = int(upper)
             std = int(std)
             threshold = int(threshold)
-            percent = int(percent)
+            sigma_percent = int(sigma_percent)
+            quantile_percent = int(quantile_percent)
 
-        return {"max": val_max, "min": val_min, "lower": lower, "mean": mean, "upper": upper, "std": std, "threshold": threshold, "percent": percent}
+        return {
+            "max": val_max,
+            "min": val_min,
+            "mean": mean,
+            "std": std,
+            "threshold": threshold,
+            "sigma_lower": sigma_lower,
+            "sigma_upper": sigma_upper,
+            "sigma_percent": sigma_percent,
+            "quantile_lower": quantile_lower,
+            "quantile_upper": quantile_upper,
+            "quantile_percent": quantile_percent
+        }
     
     def lpf(self, cutoff: float = 0.1, fs: float = 1.0, order=5):
         data = self._col.values
@@ -69,7 +87,7 @@ class DanbiExtendSeries:
         diff = self._col.diff(period)
         if isinstance(sigma, (int, float)):
             sigma = diff.bi.sigma(sigma)
-        direction = (diff / sigma["upper"]).clip(-1, 1).fillna(0)
+        direction = (diff / sigma["threshold"]).clip(-1, 1).fillna(0)
 
         zero_bound = zero_rate / 100
         direction = direction.mask((direction >= -zero_bound) & (direction <= zero_bound), 0.0)
