@@ -86,3 +86,28 @@ class DanbiExtendFrame:
             return np.array(win_data), None
         else:
             return np.array(win_data), np.array(win_label)
+        
+    def timeseries_multi(self, win: int, col_datas: List[List[str]], col_labels: List[List[str]] = None, next_label: List[int] = [1], step: int = 1) -> Tuple[np.array, np.array]:
+        win_data = [[] for _ in range(len(col_datas))]
+        win_label = [[] for _ in range(len(col_labels))]
+        next_label = np.array(next_label)
+ 
+        datas = []
+        labels = []
+        for col_data in col_datas:
+            datas.append(self._obj[col_data].values)
+        if col_labels is not None:
+            for col_label in col_labels:
+                labels.append(self._obj[col_label].values)
+        for idx in range(win, len(datas[0]) - next_label[-1] + 1):
+            if idx % step != 0:
+                continue
+            for idx_array in range(len(col_datas)):
+                win_data[idx_array].append(datas[idx_array][idx-win:idx])
+            if col_label is not None:
+                for idx_array in range(len(col_labels)):
+                    win_label[idx_array].append(labels[idx_array][next_label + idx - 1].flatten())
+        if col_label is None:
+            return np.array(win_data), None
+        else:
+            return np.array(win_data), np.array(win_label)
