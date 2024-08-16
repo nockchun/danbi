@@ -111,3 +111,39 @@ class DanbiExtendFrame:
             return np.array(win_data), None
         else:
             return np.array(win_data), np.array(win_label)
+
+    def dtype(self, src: Union[str, List[str]], dst: str, inplace: bool = True) -> pd.DataFrame:
+        """Change all columns of a specific type to the target type. support numpy like notation.
+    
+        Args:
+            src (List[str]): list of types to change.
+                > optional : you can use the numpy like type notation.
+                > example: i : int, int16, int32 ...
+                           f : float, float16, float32 ...
+            dst (str): target type.
+            inplace (bool): apply the changed data directly to the original data.
+
+        Examples:
+           > df.bi.dtype(["i", "f"], "int8")
+           > df.bi.dtype("f", "int8", True)
+           > df_changed = df.bi.dtype("float8", "int8", False)
+    
+        Returns:
+            When the inplace option is set to False, the method returns a pandas DataFrame that has been changed.
+        """
+        if isinstance(src, str):
+            src = [src]
+        
+        cols = []
+        for item in src:
+            if len(item) == 1:
+                cols += self._obj.columns[[dtype.kind in src for dtype in self._obj.dtypes]].tolist()
+            else:
+                cols += self._obj.columns[self._obj.dtypes.isin([np.dtype(ty) for ty in src])].tolist()
+        cols = set(cols)
+        
+        if inplace:
+            for col in cols:
+                self._obj[col] = self._obj[col].astype(dst)
+        else:
+            return self._obj.astype({col: dst for col in cols})

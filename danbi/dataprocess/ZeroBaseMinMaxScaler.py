@@ -161,3 +161,21 @@ class ZeroBaseMinMaxScaler():
             transformed[column] = self.inverse(df[column].values, column)
 
         return pd.DataFrame(transformed)
+
+
+def getMinMaxRows(df: pd.DataFrame, cols: List[str] = None):
+    """Extract only min/max rows from each column in pandas dataframe.
+
+    Args:
+        df (pd.DataFrame): target dataframe.
+        cols (List[str], optional): If specified, it is executed only for the specified columns. Defaults to None.
+
+    Returns:
+        _type_: _description_
+    """
+    minmax_rows = set()
+    for col in df.columns[[dtype.kind in ["i", "f"] for dtype in df.dtypes]] if cols is None else cols:
+        minmax_rows.add(df[col].idxmin())
+        minmax_rows.add(df[col].idxmax())
+        
+    return df.iloc[list(minmax_rows)]
