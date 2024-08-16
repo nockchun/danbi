@@ -1,6 +1,6 @@
 import pandas as pd
 import numpy as np
-from typing import List, Tuple, Callable
+from typing import Union, List, Tuple, Callable
 
 @pd.api.extensions.register_dataframe_accessor("bi")
 class DanbiExtendFrame:
