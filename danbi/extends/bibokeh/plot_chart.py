@@ -2,7 +2,7 @@ import pandas as pd
 from pandas.api.types import is_datetime64_any_dtype
 import numpy as np
 import datetime
-from typing import List, Tuple, Any, Union
+from typing import List, Tuple, Any, Union, Dict
 from sklearn.preprocessing import MinMaxScaler
 
 from bokeh.models import ColumnDataSource, Range1d, LinearAxis, Span, BoxAnnotation
@@ -155,6 +155,34 @@ def plotTimeseries(df, x: str, ylist: List[str], width: int = 1600, height: int 
     return fig
 
 
+def plotSeries(datas: Dict, width: int = 1600, height: int = 300, style="line", hlines: List[float] = [], vlines: List[float] = [], title: str = "Series"):
+    fig = getFigure(width, height, title)
+    tooltips, formatters = [], {"@time": "datetime"}
+    
+    cds_dict = {}
+    for idx, (key, value) in enumerate(datas.items()):
+        cds_dict[f"idx_{key}"] = np.arange(len(value)) + (0e-5 * idx) if style == "vbar" else np.arange(len(value))
+        cds_dict[f"{key}"] = value
+    cds = ColumnDataSource(data=cds_dict)
+
+    for idx, key in enumerate(datas):
+        if style == "vbar":
+            base = fig.vbar(source=cds, x=f"idx_{key}", top=key, width=0.3, color=COLORSET[idx], alpha=0.01, muted_alpha=0, legend_label=key)
+        else:
+            base = fig.line(source=cds, x=f"idx_{key}", y=key, line_width=0.8, color=COLORSET[idx], alpha=0.8, muted_alpha=0, legend_label=key)
+        tooltips.append((key, "@"+key+"{0,0[.]00}"))
+    
+    extend_lines = []
+    for hline in hlines:
+        extend_lines.append(Span(location=hline, dimension='width', line_color='#E90064', line_width=0.9, line_alpha=0.6, line_dash='dashed'))
+    for vline in vlines:
+        extend_lines.append(Span(location=vline, dimension='height', line_color='#E90064', line_width=0.9, line_alpha=0.6, line_dash='dashed'))
+
+    fig.renderers.extend(extend_lines)
+        
+    setFigureStyle(fig, tooltips, formatters, base_plot=base)
+    
+    return fig
 
 
 
