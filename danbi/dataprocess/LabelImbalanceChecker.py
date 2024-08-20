@@ -1,13 +1,30 @@
 import numpy as np
+import danbi as bi
 
 
 class LabelImbalanceChecker:
     def __init__(self):
         self._df_map = None
         self._map = None
+    
+    def store(self) -> dict:
+        return {
+            "df_map": self._df_map,
+        }
+    
+    def storeFile(self, file: str) -> dict:
+        bi.storePickle(self.store(), file)
 
     def getBalanceMap(self):
         return self._df_map
+    
+    def restore(self, states):
+        self._df_map = states["df_map"]
+        self._map = self._df_map.iloc[:, :-2].values
+    
+    def restoreFile(self, file: str):
+        stored_dict = bi.restorePickle(file)
+        self.restore(stored_dict)
 
     def fit(self, df, cols):
         df_map = df.groupby(cols).size().reset_index(name='counts')
