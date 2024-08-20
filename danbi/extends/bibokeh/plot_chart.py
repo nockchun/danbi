@@ -163,6 +163,7 @@ def plotSeries(datas: Dict, width: int = 1600, height: int = 300, style="line", 
     for idx, (key, value) in enumerate(datas.items()):
         cds_dict[f"idx_{key}"] = np.arange(len(value)) + (0e-5 * idx) if style == "vbar" else np.arange(len(value))
         cds_dict[f"{key}"] = value
+    tooltips.append(("index", "@idx_"+next(iter(datas))+"{0,0[.]00}"))
     cds = ColumnDataSource(data=cds_dict)
 
     for idx, key in enumerate(datas):
