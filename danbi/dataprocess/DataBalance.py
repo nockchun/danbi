@@ -50,7 +50,7 @@ class UniqueRateChecker:
         return self.check(target)[1]
 
 
-class LabelRateAugmenter(UniqueRateChecker):
+class LabelRateAugmenter(bidp.UniqueRateChecker):
     def __init__(self, augmentation_rate=1):
         self._aug_rate = augmentation_rate
         self._origins = []
