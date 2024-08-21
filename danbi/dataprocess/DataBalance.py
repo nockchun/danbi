@@ -76,11 +76,13 @@ class LabelRateAugmenter(UniqueRateChecker):
         return self._origins
 
     def _get_random(self):
-        item = random.choice(self._origins)
+        index = random.randint(0, len(self._origins) - 1)
+        item = self._origins[index]
+        
         if item[-1] == 1:
-            self._origins.remove(item)
+            del self._origins[index]
         else:
-            item[-1] -= 1
+            self._origins[index][-1] -= 1
         
         return item[0], item[1]
 
