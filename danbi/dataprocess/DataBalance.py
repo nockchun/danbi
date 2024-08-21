@@ -1,4 +1,5 @@
 import numpy as np
+import random
 import danbi as bi
 
 
@@ -47,3 +48,47 @@ class UniqueRateChecker:
 
     def checkRate(self, target):
         return self.check(target)[1]
+
+
+class LabelRateAugmenter(UniqueRateChecker):
+    def __init__(self, augmentation_rate=1):
+        self._aug_rate = augmentation_rate
+        self._origins = []
+
+    def store(self) -> dict:
+        data = super().store()
+        data["aug_rate"] = self._aug_rate
+        
+        return data
+
+    def restore(self, states):
+        data = super().restore(states)
+        self._aug_rate = states["aug_rate"]
+
+    def add(self, data, label):
+        rate = self.checkRate(label) - 1
+        rate = int(rate * self._aug_rate)
+        
+        if rate > 0:
+            self._origins.append([data, label, rate - 1, rate - 1])
+
+    def getAddedDatas(self):
+        return self._origins
+
+    def _get_random(self):
+        item = random.choice(self._origins)
+        if item[-1] == 1:
+            self._origins.remove(item)
+        else:
+            item[-1] -= 1
+        
+        return item[0], item[1]
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        if len(self._origins) == 0:
+            raise StopIteration
+        else:
+            return self._get_random()
