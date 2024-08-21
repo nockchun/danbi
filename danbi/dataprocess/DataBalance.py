@@ -54,6 +54,7 @@ class LabelRateAugmenter(UniqueRateChecker):
     def __init__(self, augmentation_rate=1):
         self._aug_rate = augmentation_rate
         self._origins = []
+        self._size = 0
 
     def store(self) -> dict:
         data = super().store()
@@ -68,9 +69,10 @@ class LabelRateAugmenter(UniqueRateChecker):
     def add(self, data, label):
         rate = self.checkRate(label) - 1
         rate = int(rate * self._aug_rate)
+        self._size += rate
         
         if rate > 0:
-            self._origins.append([data, label, rate - 1, rate - 1])
+            self._origins.append([data, label, rate])
 
     def getAddedDatas(self):
         return self._origins
@@ -94,3 +96,6 @@ class LabelRateAugmenter(UniqueRateChecker):
             raise StopIteration
         else:
             return self._get_random()
+    
+    def __len__(self):
+        return self._size
