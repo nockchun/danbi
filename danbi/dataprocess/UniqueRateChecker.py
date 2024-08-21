@@ -2,7 +2,7 @@ import numpy as np
 import danbi as bi
 
 
-class LabelImbalanceChecker:
+class UniqueRateChecker:
     def __init__(self):
         self._df_map = None
         self._map = None
