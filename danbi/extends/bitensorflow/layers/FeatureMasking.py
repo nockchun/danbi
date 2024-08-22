@@ -1,7 +1,8 @@
+import tensorflow as tf
 from tensorflow.keras import layers, saving
 
 
-@saving.register_keras_serializable(package="danbi.bitensorflow.llayers", name="FeatureMasking")
+@saving.register_keras_serializable(package="danbi.bitensorflow.layers", name="FeatureMasking")
 class FeatureMasking(layers.Layer):
     """ A custom Keras layer for feature masking during training.
     Args:
