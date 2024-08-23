@@ -4,3 +4,4 @@ from .GroupCorrelation import GroupCorrelation
 from .DataBalance import UniqueRateChecker, LabelRateAugmenter
 from .convert import convDfsToContinuousDfs
 from .signal import genSignData, genFourierInverseData
+from .analysis import anaRegressionTrend
