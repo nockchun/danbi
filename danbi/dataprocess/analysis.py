@@ -3,7 +3,7 @@ import numpy as np
 from sklearn.linear_model import LinearRegression
 
 model_linear = LinearRegression()
-def anaRegressionTrend(data, span=0):
+def anaRegressionTrend(data, outlier_rate=0.1, span=0):
     global model_linear
 
     # 선형회귀 계산
@@ -16,8 +16,8 @@ def anaRegressionTrend(data, span=0):
 
     # 상한 & 하한 선 계산
     series_diff = pd.Series(data - trend[:size_data])
-    lower = series_diff[series_diff <= series_diff.quantile(0.1)].abs().mean()
-    upper = series_diff[series_diff >= series_diff.quantile(0.9)].abs().mean()
+    lower = series_diff[series_diff <= series_diff.quantile(outlier_rate)].abs().mean()
+    upper = series_diff[series_diff >= series_diff.quantile(1- outlier_rate)].abs().mean()
     median = upper if upper < lower else lower
 
     upper_intercept = intercept + median
