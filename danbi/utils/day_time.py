@@ -3,7 +3,7 @@ from datetime import datetime
 from dateutil.parser import parse
 from dateutil.rrule import rrule, MONTHLY, MO, TU, WE, TH, FR, SA, SU
 from dateutil.relativedelta import relativedelta
-
+import calendar
 
 def getDaysBetween(start: Union[str, datetime], end: Union[str, datetime],
                    month: List[int] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
@@ -99,3 +99,13 @@ def getYearAnimal(year: Union[str, int]):
     if isinstance(year, str):
         year = int(year)
     return animals[year%12]
+
+def getMonthStartEnd(year, month):
+    assert month > 0 or month < 13
+    
+    start_date = f"{year}-{month:02d}-01"
+    
+    last_day = calendar.monthrange(year, month)[1]
+    end_date = f"{year}-{month:02d}-{last_day}"
+    
+    return start_date, end_date

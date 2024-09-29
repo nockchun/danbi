@@ -155,7 +155,10 @@ def plotTimeseries(df, x: str, ylist: List[str], width: int = 1600, height: int 
     return fig
 
 
-def plotSeries(datas: Dict, width: int = 1600, height: int = 300, style="line", hlines: List[float] = [], vlines: List[float] = [], title: str = "Series"):
+def plotSeries(datas: Union[Dict, pd.DataFrame], width: int = 1600, height: int = 300, style="line", hlines: List[float] = [], vlines: List[float] = [], title: str = "Series"):
+    if isinstance(datas, pd.DataFrame):
+        datas = datas.to_dict("list")
+    
     fig = getFigure(width, height, title)
     tooltips, formatters = [], {"@time": "datetime"}
     

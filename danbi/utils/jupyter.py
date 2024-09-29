@@ -5,6 +5,12 @@ import math
 def asClassMethod(clazz):
     def makeMethod(func):
         setattr(clazz, func.__name__, func)
+        if hasattr(clazz, '__abstractmethods__'):
+            clazz.__abstractmethods__ = frozenset(
+                name for name in clazz.__abstractmethods__
+                if name != func.__name__
+            )
+        return func
     return makeMethod
 
 def setWarningOff():
