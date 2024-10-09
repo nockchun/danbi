@@ -16,3 +16,4 @@ from .util import (
 )
 from .with_print import WithNumpyPrint, WithPandasPrint
 from .EduPlot import EduPlotConf, EduPlot2D
+from .DotDict import DotDict

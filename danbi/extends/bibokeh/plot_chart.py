@@ -122,7 +122,7 @@ def setHVLines(fig, hlines: List[float] = [], vlines: List[float] = [], color: s
     return fig
 
 
-def plotTimeseries(df, x: str, ylist: List[str], width: int = 1600, height: int = 300, hlines: List[float] = [], vlines: List[float] = [], title: str = "Scaled Timeseries", time: bool = True, scale: bool = True, legend: Tuple = {}):
+def plotTimeseries(df, x: str, ylist: List[str], height: int = 300, width: int = 1600, hlines: List[float] = [], vlines: List[float] = [], title: str = "Scaled Timeseries", time: bool = True, scale: bool = False, legend: Tuple = {}):
     df_plot = df[[x] + ylist].copy()
     tooltips = [(x, "@"+x+"{%F}"), ("index", "@index{0,0}")]
     formatters = {"@"+x: "datetime"}
