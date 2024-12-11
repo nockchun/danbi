@@ -45,6 +45,8 @@ class PluginManager:
                 seen_paths.append(pkg_path)
                 child_pkgs = [p for p in os.listdir(pkg_path) if os.path.isdir(os.path.join(pkg_path, p))]
                 for child_pkg in child_pkgs:
+                    if child_pkg.startswith(".") or child_pkg.startswith("__"):
+                        continue
                     self._discover_plugins(package + '.' + child_pkg)
     
     def plug(self, target: str = None) -> None:

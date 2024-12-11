@@ -36,8 +36,8 @@ class DanbiExtendSeries:
 
     def sigma(self, sigma: int = 3, quantile=0.1, as_int: bool = False) -> Tuple[float, float, float, float, float, float]:
         data = self._col.values
-        val_max = max(data)
-        val_min = min(data)
+        val_max = np.nanmax(data)
+        val_min = np.nanmin(data)
         mean = np.nanmean(data)
         std = np.nanstd(data)
         threshold = sigma * std

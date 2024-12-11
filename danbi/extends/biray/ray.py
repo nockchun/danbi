@@ -56,7 +56,7 @@ def runTasks(func_ray: Callable, vals: List, func_callback: Callable = None, chu
     cnt_total = len(vals)
     for idx, val in enumerate(vals):
         if vervos:
-            print(f"{idx+1}/{cnt_total} ({round((idx+1)/cnt_total*100)}%) {len(ray_refs)} {' '*20}", end="\r")
+            print(f"\r{idx+1}/{cnt_total} ({round((idx+1)/cnt_total*100)}%) {len(ray_refs)} {' '*20}", end="")
         if isinstance(val, (list, tuple)):
             ray_refs.append(func_ray.remote(*val))
         else:

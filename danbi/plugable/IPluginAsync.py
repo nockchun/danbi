@@ -11,11 +11,11 @@ class IPluginAsync(abc.ABC):
         return self._name
     
     @abc.abstractmethod
-    def plug(self, **kwargs) -> bool:
+    async def plug(self, **kwargs) -> bool:
         ...
     
     @abc.abstractmethod
-    def unplug(self, **kwargs) -> bool:
+    async def unplug(self, **kwargs) -> bool:
         ...
     
     def __repr__(self):
