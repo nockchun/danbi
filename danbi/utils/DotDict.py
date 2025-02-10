@@ -71,3 +71,48 @@ class DotDict:
             str: The string representation.
         """
         return f"DotDict({self.to_dict()})"
+
+    def __iter__(self):
+        """
+        Make DotDict iterable by iterating over its keys.
+        
+        Returns:
+            Iterator over the keys of the DotDict.
+        """
+        return iter(self.__dict__)
+
+    def __len__(self):
+        """
+        Return the number of items in the DotDict.
+        
+        Returns:
+            int: Number of key-value pairs.
+        """
+        return len(self.__dict__)
+
+    def keys(self):
+        """
+        Return a new view of the DotDict's keys.
+        
+        Returns:
+            dict_keys: A view object displaying a list of all the keys.
+        """
+        return self.__dict__.keys()
+
+    def values(self):
+        """
+        Return a new view of the DotDict's values.
+        
+        Returns:
+            dict_values: A view object displaying a list of all the values.
+        """
+        return self.__dict__.values()
+
+    def items(self):
+        """
+        Return a new view of the DotDict's items (key, value pairs).
+        
+        Returns:
+            dict_items: A view object displaying a list of the DotDict's key-value pairs.
+        """
+        return self.__dict__.items()

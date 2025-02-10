@@ -10,14 +10,7 @@ def getWriter(file_path: str, is_zip: bool = True) -> tf.io.TFRecordWriter:
     else:
         return tf.io.TFRecordWriter(file_path)
 
-def storeTFRecord(writer: Callable, data: Dict[str, np.array], is_zip: bool = True):
-    # for data in zip(*datas.values()):
-    #     feature = {}
-    #     for idx, name in enumerate(datas.keys()):
-    #         feature[name] = tf.train.Feature(bytes_list=tf.train.BytesList(value=[data[idx].tobytes()]))
-    #     example = tf.train.Example(features=tf.train.Features(feature=feature))
-    #     writer.write(example.SerializeToString())
-
+def storeTFRecord(writer: Callable, data: Dict[str, np.array]):
     feature = {}
     for idx, name in enumerate(data.keys()):
         feature[name] = tf.train.Feature(bytes_list=tf.train.BytesList(value=[data[name].tobytes()]))
@@ -42,6 +35,7 @@ def getTFRecordDecoder(datas: Dict[str, tf.DType], shape_in: Dict[str, Tuple[int
             outs[name] = tf.reshape(raw, shape=shape)
 
         return ins, outs
+    
     return tfrecordParseAndDecode
 
 def restoreTFRecord(files: List[str], decoder: Callable, is_zip: bool = True) -> tf.data.TFRecordDataset:

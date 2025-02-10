@@ -52,6 +52,7 @@ def setFigureStyle(fig: figure, tooltips: List = None, formatters: tuple = None,
             mode="vline",
             renderers=[base_plot]
         ))
+        fig.toolbar.active_inspect = None
 
 
 def setLine(fig: figure, src: Union[ColumnDataSource, pd.DataFrame], x: str, y: str, color: str, width: int = 1.2, legend_label: str = None, alpha: int = 0.7, muted_alpha: int = 0.05, y_ref: int = None, y_range: tuple = None, extra_y_name: str = None, extra_y_range: tuple = None):
@@ -122,9 +123,12 @@ def setHVLines(fig, hlines: List[float] = [], vlines: List[float] = [], color: s
     return fig
 
 
-def plotTimeseries(df, x: str, ylist: List[str], height: int = 300, width: int = 1600, hlines: List[float] = [], vlines: List[float] = [], title: str = "Scaled Timeseries", time: bool = True, scale: bool = False, legend: Tuple = {}):
+def plotTimeseries(df, x: str, ylist: List[str], height: int = 300, width: int = 1600, hlines: List[float] = [], vlines: List[float] = [], title: str = "Scaled Timeseries", time: bool = True, scale: bool = False, legend: Tuple = {}, hover_time: bool = False):
     df_plot = df[[x] + ylist].copy()
-    tooltips = [(x, "@"+x+"{%F}"), ("index", "@index{0,0}")]
+    if hover_time:
+        tooltips = [(x, "@"+x+"{%F %T}"), ("index", "@index{0,0}")]
+    else:
+        tooltips = [(x, "@"+x+"{%F}"), ("index", "@index{0,0}")]
     formatters = {"@"+x: "datetime"}
     if time and not is_datetime64_any_dtype(df_plot[x]):
         df_plot[x] = pd.to_datetime(df_plot[x], utc=True)
