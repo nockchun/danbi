@@ -1,13 +1,13 @@
-from psycopg2 import pool, extensions
+from dbutils.pooled_db import PooledDB, PooledDedicatedDBConnection
 from .IConnectionManager import IConnectionManager
 
-class ConnMngPsql(IConnectionManager):
+class ConnMngSqlite(IConnectionManager):
     def connect(self, **kwargs) -> IConnectionManager:
         try:
             self.close()
             self._kwargs.update(kwargs)
             
-            self._conn_pool = pool.ThreadedConnectionPool(**self._kwargs)
+            self._conn_pool = PooledDB(**self._kwargs)
             return self.instance
         except Exception:
             raise
@@ -17,19 +17,18 @@ class ConnMngPsql(IConnectionManager):
     
     def close(self, **kwargs) -> None:
         if self._conn_pool is not None:
-            self._conn_pool.closeall()
+            self._conn_pool._close_idle()
             self._conn_pool = None
     
-    def getConnection(self, auto_commit=True, **kwargs) -> extensions.connection:
+    def getConnection(self, auto_commit=True, **kwargs) -> PooledDedicatedDBConnection:
         try:
-            conn = self._conn_pool.getconn()
-            conn.set_isolation_level(extensions.ISOLATION_LEVEL_AUTOCOMMIT if auto_commit else extensions.ISOLATION_LEVEL_DEFAULT)
+            conn = self._conn_pool.connection()
             return conn
         except Exception:
             raise
     
     def releaseConnection(self, conn) -> None:
         try:
-            self._conn_pool.putconn(conn)
+            conn.close()
         except Exception:
             raise

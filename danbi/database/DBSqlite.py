@@ -2,7 +2,7 @@ from typing import Union
 import pandas as pd
 from .IDB import IDB
 
-class DBPsql(IDB):
+class DBSqlite(IDB):
     def query(self, mapper_name: str, values: Union[dict, tuple] = {}, print_sql: bool = False) -> list:
         with self._lock_q:
             raw_sql = self._mapper.get(mapper_name, values)
@@ -10,9 +10,8 @@ class DBPsql(IDB):
                 print(raw_sql)
             return self.queryRaw(raw_sql, values)
     
-    def queryRaw(self, raw_sql: str, values: tuple = {}) -> list:
+    def queryRaw(self, raw_sql: str, values: tuple = ()) -> list:
         try:
-        # with self._lock_qr:
             conn = self._manager.getConnection()
             cursor = conn.cursor()
 
@@ -37,9 +36,8 @@ class DBPsql(IDB):
                 print(raw_sql)
             return self.queryPandasRaw(raw_sql, values, dtype)
     
-    def queryPandasRaw(self, raw_sql: str, values: Union[dict, tuple] = {}, dtype: dict = None) -> pd.DataFrame:
+    def queryPandasRaw(self, raw_sql: str, values: Union[dict, tuple] = (), dtype: dict = None) -> pd.DataFrame:
         try:
-        # with self._lock_qpr:
             conn = self._manager.getConnection()
             cursor = conn.cursor()
 
@@ -67,9 +65,8 @@ class DBPsql(IDB):
                 print(raw_sql)
             return self.executeRaw(raw_sql, values)
     
-    def executeRaw(self, raw_sql, values={}) -> int:
+    def executeRaw(self, raw_sql, values=()) -> int:
         try:
-        # with self._lock_er:
             conn = self._manager.getConnection()
             cursor = conn.cursor()
 
@@ -113,3 +110,4 @@ class DBPsql(IDB):
             if conn is not None:
                 self._manager.releaseConnection(conn)
             raise
+
