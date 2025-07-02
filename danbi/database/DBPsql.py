@@ -16,7 +16,10 @@ class DBPsql(IDB):
             conn = self._manager.getConnection()
             cursor = conn.cursor()
 
-            cursor.execute(raw_sql, values)
+            try:
+                cursor.execute(raw_sql, values)
+            except:
+                cursor.execute(raw_sql)
             records = cursor.fetchall()
             
             cursor.close()
@@ -43,7 +46,10 @@ class DBPsql(IDB):
             conn = self._manager.getConnection()
             cursor = conn.cursor()
 
-            cursor.execute(raw_sql, values)
+            try:
+                cursor.execute(raw_sql, values)
+            except:
+                cursor.execute(raw_sql)
             records = cursor.fetchall()
             columns = [desc[0] for desc in cursor.description]
             
@@ -73,7 +79,10 @@ class DBPsql(IDB):
             conn = self._manager.getConnection()
             cursor = conn.cursor()
 
-            cursor.execute(raw_sql, values)
+            try:
+                cursor.execute(raw_sql, values)
+            except:
+                cursor.execute(raw_sql)
             result = cursor.rowcount
             
             cursor.close()
@@ -100,7 +109,10 @@ class DBPsql(IDB):
             conn = self._manager.getConnection()
             cursor = conn.cursor()
 
-            cursor.executemany(raw_sql, values)
+            try:
+                cursor.executemany(raw_sql, values)
+            except:
+                cursor.executemany(raw_sql)
             result = cursor.rowcount
             
             cursor.close()

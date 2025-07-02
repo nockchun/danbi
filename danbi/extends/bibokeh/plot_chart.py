@@ -39,8 +39,8 @@ def setFigureStyle(fig: figure, tooltips: List = None, formatters: tuple = None,
 
     fig.legend.border_line_alpha = 0
     fig.legend.background_fill_alpha = 0
-    fig.legend.padding = options.get("legend_padding", -7)
-    fig.legend.spacing = options.get("legend_spacing", -4)
+    fig.legend.padding = options.get("legend_padding", 0)
+    fig.legend.spacing = options.get("legend_spacing", 0)
     fig.legend.click_policy = "mute"
     fig.legend.location = options.get("legend_location", "top_left")
     fig.legend.label_text_font_size = options.get("legend_font_size", "9pt")
